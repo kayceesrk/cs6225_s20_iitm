@@ -1,7 +1,7 @@
 # Site settings
 title: CS6XYZ Spring 2020
 subtitle: Programs and Proofs
-baseurl: "/cs6XYZ_s20" # the subpath of your site, e.g. /blog/
+baseurl: "/cs6XYZ_s20_iitm" # the subpath of your site, e.g. /blog/
 url: "http://kayceesrk.github.io" # the base hostname & protocol for your site
 syllabus: "http://www.cse.iitm.ac.in/course_details.php?arg=MTk="
 githubdir: "kayceesrk/cs6XYZ_s20_iitm"
