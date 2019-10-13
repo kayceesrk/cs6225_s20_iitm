@@ -60,8 +60,8 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
 
 We will be closely following 
 
-* *Formal Reasoning about Programs*, Adam Chlipala. Freely available online:
-  http://adam.chlipala.net/frap/
+* *Formal Reasoning about Programs*, Adam Chlipala. Freely available
+  [online](http://adam.chlipala.net/frap/).
 
 for the Coq part of the course. For F\*, there is no prescribed text book. We
 will look at examples from the [tutorials](https://www.fstar-lang.org/tutorial/)
@@ -69,7 +69,7 @@ and other [lectures](https://www.cs.uoregon.edu/research/summerschool/summer19/t
 
 Other reference books are:
 
-* *Software Foundations*, Benjamin Pierce et al. Freely available online: https://softwarefoundations.cis.upenn.edu/
+* *Software Foundations*, Benjamin Pierce et al. Freely available [online](https://softwarefoundations.cis.upenn.edu/).
 * *Types and Programming Languages*, Benjamin Pierce, MIT Press, 1st edition, 2002.
 * *Practical Foundations for Programming Languages*, Robert Harper, Cambridge
   University Press, 2nd edition, 2016
