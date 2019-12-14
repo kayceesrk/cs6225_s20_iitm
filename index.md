@@ -48,7 +48,7 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
 * **Proving with F\* (3 weeks):** Verifying Stateful Programs – Dijkstra Monad -
   Higher Kinds, Indexed Types, Type-level functions – Cryptography examples with
   Authentication – Cryptography examples with confidentiality - Verifying
-  low-level code using Low*, a subset of F*
+  low-level code using Low\*, a subset of F\*
 * **Concurrency (3 weeks):** Operational semantics for concurrent programs -
   Concurrent Separation Logic and rely-guarantee reasoning: verifying concurrent
   shared-memory programs - Pi-calculus and behavioral refinement: modular
@@ -75,6 +75,11 @@ Other reference books are:
   University Press, 2nd edition, 2016
 
 ## Other Info
+
+### Class info
+
+Location: CS26
+Time: M 1100 - 1150, Tu 1000 - 1050, W 0900 - 0950, Th 1300 - 1350
 
 ### Credits
 
