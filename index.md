@@ -25,8 +25,10 @@ learn how to apply these tools to certify that programs behave as expected.
 Specifically, we will look at
 
 1. Formal logical reasoning about program correctness through
-2. [Coq proof assistant](https://coq.inria.fr/), a tool for machine checked mathematical theorem proving and
-3. [F\*](https://www.fstar-lang.org), a general-purpose programming language aimed at program verification
+2. [Coq proof assistant](https://coq.inria.fr/), a tool for machine checked
+   mathematical theorem proving and
+3. [F\*](https://www.fstar-lang.org), a general-purpose programming language
+   aimed at program verification
 
 **Is this a program verification course?** 
 
@@ -70,16 +72,21 @@ and other [lectures](https://www.cs.uoregon.edu/research/summerschool/summer19/t
 Other reference books are:
 
 * *Software Foundations*, Benjamin Pierce et al. Freely available [online](https://softwarefoundations.cis.upenn.edu/).
-* *Types and Programming Languages*, Benjamin Pierce, MIT Press, 1st edition, 2002.
+* *Types and Programming Languages*, Benjamin Pierce, MIT Press, 1st edition,
+  2002. Ebook is available in IITM library.
 * *Practical Foundations for Programming Languages*, Robert Harper, Cambridge
-  University Press, 2nd edition, 2016
+  University Press, 2nd edition, 2016. Freely available [online](https://www.cs.cmu.edu/~rwh/pfpl/2nded.pdf).
 
 ## Other Info
 
 ### Class info
 
 Location: CS26
-Time: M 1100 - 1150, Tu 1000 - 1050, W 0900 - 0950, Th 1300 - 1350
+Time: 
+  * M 1100 - 1150
+  * Tu 1000 - 1050
+  * W 0900 - 0950
+  * Th 1300 - 1350
 
 ### Credits
 
@@ -87,7 +94,7 @@ Time: M 1100 - 1150, Tu 1000 - 1050, W 0900 - 0950, Th 1300 - 1350
 
 ### Evaluation Plan 
 
-* Fortnightly Assignments: 40%
+* Weekly Assignments: 40%
 * Quiz 1: 15%
 * Quiz 2: 15%
 * Finals: 30%
@@ -99,5 +106,9 @@ Time: M 1100 - 1150, Tu 1000 - 1050, W 0900 - 0950, Th 1300 - 1350
 You should feel comfortable with functional programming concepts. If you are
 able to get through the assignments 1 to 4, you are ready for this course. All
 the course materials, and assignments are available on the [CS3100
-website](http://kcsrk.info/cs3100_f19/). If you are unsure, please come talk to
-me. 
+website](http://kcsrk.info/cs3100_f19/). 
+
+**I highly recommend that you complete assignments 1 to 4 before the start of
+this course**.
+
+If you are unsure, please come talk to me. 
