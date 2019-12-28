@@ -93,10 +93,9 @@ Time:
 
 ### Evaluation Plan 
 
-* Weekly Assignments: 40%
-* Quiz 1: 15%
-* Quiz 2: 15%
-* Finals: 30%
+* Weekly Assignments: 60%
+* Midterm: 20%
+* Finals: 20%
 
 ### Pre-requisite
 
