@@ -39,9 +39,9 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
 
 * **Foundations (1 week):** Induction principles, logic and propositions,
   Curry-Howard correspondence.
-* **Specification and Verification (2 weeks):** Program Equivalence – Labelled
-  Transition Systems – Operational Semantics - Compiler Verification – Model
-  Checking – Simply Typed Lambda Calculus.
+* **Specification and Verification (2 weeks):** Program Equivalence – Transition
+  Systems – Operational Semantics - Compiler Verification – Model Checking –
+  Simply Typed Lambda Calculus.
 * **Program Logics (2 weeks):** Hoare logic: an approach to verifying imperative
   programs - Separation logic: reasoning about aliasing and pointer-based data
   structures – Deep Embeddings, Shallow Embeddings and options in between.
@@ -55,8 +55,7 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
   Concurrent Separation Logic and rely-guarantee reasoning: verifying concurrent
   shared-memory programs - Pi-calculus and behavioral refinement: modular
   reasoning about message-passing functional programs – Session Types for
-  distributed programming – Case Studies: Algebraic Effects and Handlers,
-  Concurrent ML, GHC Haskell STM, Multicore OCaml Memory Model.
+  distributed programming.
 
 ## Text Books
 

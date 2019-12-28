@@ -7,3 +7,5 @@
 5. Interpreters
 6. LogicProgramming
 7. TransitionSystems
+8. ModelChecking
+9. OperationalSemantics
