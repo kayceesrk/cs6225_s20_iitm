@@ -7,5 +7,7 @@
 5. Interpreters
 6. LogicProgramming
 7. TransitionSystems
-8. ModelChecking
 9. OperationalSemantics
+10. Lambda Calculus
+11. Hoare Logic
+12. Separation Logic
