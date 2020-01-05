@@ -37,25 +37,23 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
 
 ## Course Contents 
 
-* **Foundations (1 week):** Induction principles, logic and propositions,
-  Curry-Howard correspondence.
-* **Specification and Verification (2 weeks):** Program Equivalence – Transition
-  Systems – Operational Semantics - Compiler Verification – Model Checking –
-  Simply Typed Lambda Calculus.
-* **Program Logics (2 weeks):** Hoare logic: an approach to verifying imperative
-  programs - Separation logic: reasoning about aliasing and pointer-based data
-  structures – Deep Embeddings, Shallow Embeddings and options in between.
-* **Programming with F\* (3 weeks):** Programming in F\* - Inductive Types -
+* **Foundations:** Induction principles, logic and propositions, Curry-Howard
+  correspondence.
+* **Specification and Verification:** Program Equivalence – Transition Systems –
+  Operational Semantics - Compiler Verification – Model Checking – Simply Typed
+  Lambda Calculus.
+* **Program Logics:** Hoare logic: an approach to verifying imperative programs
+  - Separation logic: reasoning about aliasing and pointer-based data
+  structures.
+* **Programming with F\*:** Programming in F\* - Inductive Types -
   Verified Functional Programming – Termination - Programming with Effects
-* **Proving with F\* (3 weeks):** Verifying Stateful Programs – Dijkstra Monad -
-  Higher Kinds, Indexed Types, Type-level functions – Cryptography examples with
-  Authentication – Cryptography examples with confidentiality - Verifying
+* **Proving with F\*:** Verifying Stateful Programs – Dijkstra Monad - Higher
+  Kinds, Indexed Types, Type-level functions – Cryptography examples - Verifying
   low-level code using Low\*, a subset of F\*
-* **Concurrency (3 weeks):** Operational semantics for concurrent programs -
-  Concurrent Separation Logic and rely-guarantee reasoning: verifying concurrent
-  shared-memory programs - Pi-calculus and behavioral refinement: modular
-  reasoning about message-passing functional programs – Session Types for
-  distributed programming.
+* **Concurrency:** Concurrent Separation Logic and rely-guarantee reasoning:
+  verifying concurrent shared-memory programs - Pi-calculus and behavioral
+  refinement: modular reasoning about message-passing functional programs –
+  Session Types for distributed programming.
 
 ## Text Books
 
