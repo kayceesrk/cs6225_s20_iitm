@@ -1,13 +1,13 @@
 # Lectures
 
-1. FunctionalProgramming
-2. Logic
-3. Induction
-4. BasicSyntax
-5. Interpreters
-6. LogicProgramming
-7. TransitionSystems
-9. OperationalSemantics
-10. Lambda Calculus
-11. Hoare Logic
-12. Separation Logic
+ 1. FunctionalProgramming.v
+ 2. Logic.v
+ 3. Induction.v
+ 4. BasicSyntax.v
+ 5. Interpreters.v
+ 6. LogicProgramming.v
+ 7. TransitionSystems.v
+ 9. OperationalSemantics.v
+10. LambdaCalculus.v
+11. HoareLogic.v
+12. SeparationLogic.v
