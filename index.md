@@ -55,25 +55,6 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
   refinement: modular reasoning about message-passing functional programs –
   Session Types for distributed programming.
 
-## Text Books
-
-We will be closely following 
-
-* *Formal Reasoning about Programs*, Adam Chlipala. Freely available
-  [online](http://adam.chlipala.net/frap/).
-
-for the Coq part of the course. For F\*, there is no prescribed text book. We
-will look at examples from the [tutorials](https://www.fstar-lang.org/tutorial/)
-and other [lectures](https://www.cs.uoregon.edu/research/summerschool/summer19/topics.php#Swamy).
-
-Other reference books are:
-
-* *Software Foundations*, Benjamin Pierce et al. Freely available [online](https://softwarefoundations.cis.upenn.edu/).
-* *Types and Programming Languages*, Benjamin Pierce, MIT Press, 1st edition,
-  2002. Ebook is available in IITM library.
-* *Practical Foundations for Programming Languages*, Robert Harper, Cambridge
-  University Press, 2nd edition, 2016. Freely available [online](https://www.cs.cmu.edu/~rwh/pfpl/2nded.pdf).
-
 ## Other Info
 
 ### Class info

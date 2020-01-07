@@ -1,5 +1,6 @@
 # Lectures
-
+ 
+ 0. 0_first_day_of_class.key
  1. FunctionalProgramming.v
  2. Logic.v
  3. Induction.v
