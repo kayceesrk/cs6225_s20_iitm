@@ -55,9 +55,7 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
   refinement: modular reasoning about message-passing functional programs –
   Session Types for distributed programming.
 
-## Other Info
-
-### Class info
+## Class info
 
 Location: CS26
 Time: 
@@ -66,17 +64,17 @@ Time:
   * W 0900 - 0950
   * Th 1300 - 1350
 
-### Credits
+## Credits
 
 3-1-0-0-8-12
 
-### Evaluation Plan 
+## Evaluation Plan 
 
 * Weekly Assignments: 60%
 * Midterm: 20%
 * Finals: 20%
 
-### Pre-requisite
+## Pre-requisite
 
 [CS3100](http://kcsrk.info/cs3100_f19/) (only the OCaml parts) or Equivalent. 
 
