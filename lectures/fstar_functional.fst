@@ -25,7 +25,7 @@ let rec map f x =
 
 let l = map (fun x -> x + 1) (Cons 2 (Cons 1 Nil))
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Refinement Types
 
@@ -45,7 +45,7 @@ let _ = factorial 0
 
 (* The proof obligations are discharged by the z3 SMT solver *)
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Dependent Types *)
 
@@ -82,7 +82,7 @@ let incr6 x = x + 1
 
 (* Notice that the above type is the most precise type that you can give to the increment function *)
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Total Functions
 
@@ -99,7 +99,7 @@ let rec factorial2 n =
 (* let factorial3 : int -> Tot int = factorial2 *)
 
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Semantic Termination Checking
 
@@ -142,7 +142,7 @@ type exp =
 | Lam : nat -> exp -> exp
 | Var : nat -> exp
 
-val subst : x:nat -> e1:exp -> e2:exp -> Tot exp (decreases e2)
+val subst : x:nat -> e1:exp -> e2:exp -> Tot exp 
 let rec subst x e1 e2 =
   match e2 with
   | Var x' -> if x = x' then e1 else Var x'
@@ -161,7 +161,7 @@ let rec eval e =
 let loops_forever () = eval (App (Lam 0 (App (Var 0) (Var 0)))
                                  (Lam 0 (App (Var 0) (Var 0))))
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Effect System
 
@@ -184,7 +184,7 @@ let baz () : Dv int = incr 2 + factorial3 (-1)
 
 (* <<switch to slides>> *)
 
-(********************************************************************************)
+(******************************************************************************)
 
 (* Example: A simple model of access control *)
 
