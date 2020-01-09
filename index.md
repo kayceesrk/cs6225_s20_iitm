@@ -42,9 +42,8 @@ Proofs](https://blog.sigplan.org/2019/09/12/program-verification-has-it-lost-its
 * **Specification and Verification:** Program Equivalence – Transition Systems –
   Operational Semantics - Compiler Verification – Model Checking – Simply Typed
   Lambda Calculus.
-* **Program Logics:** Hoare logic: an approach to verifying imperative programs
-  - Separation logic: reasoning about aliasing and pointer-based data
-  structures.
+* **Program Logics:** Hoare logic: an approach to verifying imperative programs - Separation logic: 
+  reasoning about aliasing and pointer-based data structures.
 * **Programming with F\*:** Programming in F\* - Inductive Types -
   Verified Functional Programming – Termination - Programming with Effects
 * **Proving with F\*:** Verifying Stateful Programs – Dijkstra Monad - Higher
