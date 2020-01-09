@@ -32,7 +32,7 @@ let l = map (fun x -> x + 1) (Cons 2 (Cons 1 Nil))
    <<switch to slides>>
 *)
 
-(* Refinements eliminated by subtyping [nat <: int]*) 
+(* Refinements eliminated by subtyping [nat <: int]*)
 let i : int = factorial 42
 
 let f : x:nat{x > 0} -> int = factorial
@@ -78,7 +78,7 @@ let incr5 x = x + 1
    there exists a type [t'] such that [t' <: t] *)
 
 val incr6 : x:int -> y:int{y=x+1}
-let incr6 x = x + 1 
+let incr6 x = x + 1
 
 (* Notice that the above type is the most precise type that you can give to the increment function *)
 
@@ -90,7 +90,7 @@ let incr6 x = x + 1
 
 *)
 
-val factorial2 : nat -> Tot nat 
+val factorial2 : nat -> Tot nat
 let rec factorial2 n =
   if n = 0 then 1 else n * factorial2 (n-1)
 
@@ -101,7 +101,7 @@ let rec factorial2 n =
 
 (********************************************************************************)
 
-(* Semantic Termination Checking 
+(* Semantic Termination Checking
 
    <<switch to slides>>
 *)
@@ -118,7 +118,7 @@ let rec ackermann2 m n =
   else if n = 0 then ackermann2 (m - 1) 1
   else ackermann2 (m - 1) (ackermann2 m (n - 1))
 
-(* if the [decreases] annotation were to be removed, then this program would not 
+(* if the [decreases] annotation were to be removed, then this program would not
    type check *)
 val ackermann3: n:nat -> m:nat -> Tot nat (decreases %[m;n])
 let rec ackermann3 n m =
@@ -128,7 +128,7 @@ let rec ackermann3 n m =
 
 (********************************************************************************)
 
-(* Divergence 
+(* Divergence
 
   <<switch to slides>>
 
@@ -137,9 +137,33 @@ let rec ackermann3 n m =
 val factorial3 : int -> Dv int
 let rec factorial3 n = if n = 0 then 1 else n * factorial3 (n-1)
 
+type exp =
+| App : exp -> exp -> exp
+| Lam : nat -> exp -> exp
+| Var : nat -> exp
+
+val subst : x:nat -> e1:exp -> e2:exp -> Tot exp (decreases e2)
+let rec subst x e1 e2 =
+  match e2 with
+  | Var x' -> if x = x' then e1 else Var x'
+  | App e21 e22 -> App (subst x e1 e21) (subst x e1 e22)
+  | Lam x' e2' -> Lam x (subst x e1 e2') (* naive implementation *)
+
+val eval : exp -> Dv exp
+let rec eval e =
+  match e with
+  | App (Lam x e1) e2 -> eval (subst x e2 e1)
+  | App e1 e2 -> eval (App (eval e1) e2)
+  | Lam x e1 -> Lam x (eval e1)
+  | _ -> e
+
+(* this loops forever *)
+let loops_forever () = eval (App (Lam 0 (App (Var 0) (Var 0)))
+                                 (Lam 0 (App (Var 0) (Var 0))))
+
 (********************************************************************************)
 
-(* Effect System 
+(* Effect System
 
   <<switch to slides>>
 
@@ -171,13 +195,13 @@ open FStar.All
 type filename = string
 
 (** [canWrite] is a function specifying whether a file [f] can be written *)
-let canWrite (f:filename) = 
-  match f with 
+let canWrite (f:filename) =
+  match f with
     | "demo/tempfile" -> true
     | _ -> false
 
 (** [canRead] is also a function ... *)
-let canRead (f:filename) = 
+let canRead (f:filename) =
   canWrite f              (* writeable files are also readable *)
   || f="demo/README"       (* and so is demo/README *)
 
