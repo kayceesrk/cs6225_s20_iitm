@@ -44,7 +44,8 @@ We will be closely following
 
 for the Coq part of the course. For F\*, there is no prescribed text book. We
 will look at examples from the [tutorials](https://www.fstar-lang.org/tutorial/)
-and other [lectures](https://www.cs.uoregon.edu/research/summerschool/summer19/topics.php#Swamy).
+and [other](https://prosecco.gforge.inria.fr/personal/hritcu/teaching/vtsa2019/)
+[lectures](https://www.cs.uoregon.edu/research/summerschool/summer19/topics.php#Swamy).
 
 Other reference books are:
 

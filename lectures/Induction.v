@@ -1,4 +1,4 @@
-(** 
+(**
 * Induction in Coq
 
 -----
@@ -82,7 +82,7 @@ let app : 'a list -> 'a list -> 'a list =
     match lst1 with
     | [] -> lst2
     | h :: t -> h :: app' t lst2
-  in 
+  in
   app'
 >>
 
@@ -96,8 +96,8 @@ Theorem nil_app : forall (A:Type) (lst : list A),
     [lst], by the definition of [++]. *)
 
 Proof.
-  intros A lst. 
-  simpl. 
+  intros A lst.
+  simpl.
   trivial.
 Qed.
 
@@ -112,7 +112,7 @@ Theorem app_nil : forall (A:Type) (lst : list A),
   lst ++ [] = lst.
 
 (* Intuition (incomplete):  by case analysis on [lst].
-   - if [lst] is [[]], then trivially [[] ++ []] is [[]].  
+   - if [lst] is [[]], then trivially [[] ++ []] is [[]].
    - if [lst] is [h::t], then ...? *)
 
 Proof.
@@ -125,7 +125,7 @@ Abort.
 []) = h :: t].  There's no way to make progress on that, because we can't
 simplify [t ++ []] to just [t].  Of course as humans we know that holds.  But to
 Coq, that's a fact that hasn't yet been proved.  Indeed, it is an instance of
-the theorem we're currently trying to prove!  
+the theorem we're currently trying to prove!
 
 What's going wrong here is that case analysis is not a sufficiently powerful
 proof technique for this theorem.  We need to be able to _recursively_ apply the
@@ -150,7 +150,7 @@ rung you wish.  (As long as you're not afraid of heights.)
 
 What both of those metaphors have in common is
 
-- a _base case_, in which something is done first.  For the dominos, it's 
+- a _base case_, in which something is done first.  For the dominos, it's
   knocking over the first domino; for the ladder, it's climbing the first rung.
   And,
 
@@ -158,7 +158,7 @@ What both of those metaphors have in common is
   the next.  For the dominos, it's one domino knocking over the next; for the
   ladder, it's literally taking the step from one rung to the next.  In both
   cases, it must actually be possible for the action to occur:  if the dominos
-  or the rungs were spaced too far apart, then progress would stop.  
+  or the rungs were spaced too far apart, then progress would stop.
 
 A proof by induction likewise has a base case and an inductive case.
 Here's the structure of a proof by induction on a list:
@@ -181,7 +181,7 @@ QED.
 The _base case_ of a proof by induction on lists is for when the list is empty.
 The _inductive case_ is when the list is non-empty, hence is the cons of a head
 to a tail.  In the inductive case, we get to assume an _inductive hypothesis_,
-which is that the property [P] holds of the tail.  
+which is that the property [P] holds of the tail.
 
 In the metaphors above, the inductive hypothesis is the assumption that we've
 already reached some particular domino or rung.  From there, the metaphorical
@@ -211,7 +211,7 @@ Show
   P(h::t)
 = (h::t) ++ nil = h::t
 = h::(t ++ nil) = h::t     // by definition of ++
-= h::t = h::t              // by IH 
+= h::t = h::t              // by IH
 
 QED
 >>
@@ -224,12 +224,12 @@ Theorem app_nil : forall (A:Type) (lst : list A),
 Proof.
 intros A lst. induction lst as [ | h t IH].
 - simpl. trivial.
-- simpl. rewrite -> IH. trivial. 
+- simpl. rewrite -> IH. trivial.
 Qed.
 
 
 (** The tactics used in that proof correspond exactly to the non-Coq proof
-above.  
+above.
 
 The [induction] tactic is new to us.  It initiates a proof by induction on its
 argument, in this case [lst], and provides names for the variables to be used in
@@ -258,7 +258,7 @@ Case:  l1 = nil
 Show:
   P(nil)
 = nil ++ (l2 ++ l3) = (nil ++ l2) ++ l3
-= l2 ++ l3 = l2 ++ l3   // simplifying ++, twice 
+= l2 ++ l3 = l2 ++ l3   // simplifying ++, twice
 
 Case:  l1 = h::t
 IH:  P(t) = t ++ (l2 ++ l3) = (t ++ l2) ++ l3
@@ -333,7 +333,7 @@ function that adds one to its argument.  So:
 - 3 is [S (S (S O))]
 - etc.
 
-This is a kind of _unary_ representation of the naturals, in which we repeat 
+This is a kind of _unary_ representation of the naturals, in which we repeat
 the symbol [S] a total of [n] times to represent the natural number [n].
 
 The Coq definition of [nat] is much the same:
@@ -344,7 +344,7 @@ Print nat.
 (**
 Coq responds with output that is equivalent to the following:
 <<
-Inductive nat : Set := 
+Inductive nat : Set :=
   | O : nat
   | S : nat -> nat
 >>
@@ -357,7 +357,7 @@ a specification for program computations.  (Or, a little more loosely, that
 Anywhere we write something that looks like an integer literal in Coq, Coq
 actually understand that as its expansion in the Peano representation defined
 above.  For example, [2] is understood by Coq as just syntactic sugar for [S (S
-O)].  We can even write computations using those constructors: 
+O)].  We can even write computations using those constructors:
 *)
 
 Compute S (S O).
@@ -386,14 +386,14 @@ of the pattern match is effectively calling [my_add] recursively with
 [a-1] as its first argument, since [a = S c], meaning that [a] is the
 successor of [c].
 
-Now that we know how [nat] is defined inductively, let's try 
+Now that we know how [nat] is defined inductively, let's try
 to prove the classic theorem mentioned above about summation.
 Moreover, let's prove that a program that computes the sum [0 + 1 + ... + n]
 does in fact compute [n * (n+1) / 2].  First, we need to write
 that program.  In OCaml, we could write the program quite easily:
 <<
-let rec sum_to n = 
-  if n=0 then 0 
+let rec sum_to n =
+  if n=0 then 0
   else n + sum_to (n-1)
 >>
 
@@ -447,7 +447,7 @@ Fail Fixpoint sum_to (n:nat) : nat :=
 <<
 Recursive definition of sum_to is ill-formed.
 ...
-Recursive call to sum_to has principal argument equal to 
+Recursive call to sum_to has principal argument equal to
 "n - 1" instead of a subterm of "n".
 ...
 >>
@@ -468,7 +468,7 @@ Coq responds very similarly to how it did with [sum_to]:
 <<
 Recursive definition of inf is ill-formed.
 ...
-Recursive call to inf has principal argument equal to 
+Recursive call to inf has principal argument equal to
 "x" instead of a subterm of "x".
 >>
 
@@ -482,7 +482,7 @@ val inf : 'a -> 'b = <fun>
 Let's look at the type of that function, using what we learned about
 propositions-as-types in the previous lecture.  The type ['a -> 'b]
 corresponds to the proposition [A -> B], where [A] and [B] could
-be any propositions.  In particular, [A] could be [True] and [B] 
+be any propositions.  In particular, [A] could be [True] and [B]
 could be [False], leading to the proposition [True -> False].  That's
 a proposition that should never be provable:  truth does not imply
 falsehood.  And yet, since [inf] is a program of that type, [inf]
@@ -493,9 +493,9 @@ type void = {nope : 'a . 'a};;
 let rec inf x = inf x;;
 let ff : void = inf ();;
 >>
-The [void] type is how we represented [False] in the previous lecturev.  
+The [void] type is how we represented [False] in the previous lecturev.
 The value [ff] above corresponds to a proof of [False].
-So infinite loops are able to prove [False].  
+So infinite loops are able to prove [False].
 
 In OCaml we don't mind that phenomenon, because OCaml's purpose is not to be a
 proof assistant.  But in Coq it would be deadly:  we should never allow the
@@ -504,7 +504,7 @@ all infinite loops.  But that's easier said than done!  Recall from CS 2800 that
 the _halting problem_ is undecidable:  we can't write a program that precisely
 determines whether another program will terminate.  Well, the Coq compiler is a
 program, and it wants to detect which programs terminate and which programs do
-not---which is exactly what the halting problem says is impossible.  
+not---which is exactly what the halting problem says is impossible.
 
 So instead of trying to do something impossible, Coq settles for doing something
 possible but imprecise, specifically, something that prohibits all
@@ -528,7 +528,7 @@ Fail Fixpoint sum_to (n:nat) : nat :=
 
 (** The recursive call to [sum_to] has as its argument [n-1], which
 syntactically is actually bigger than the original argument of [n].  So Coq
-rejects the program.  
+rejects the program.
 
 To finally succeed in definining [sum_to], we can make use of what we know about
 how [nat] is defined:  since it's an inductive type, we can pattern match on it:
@@ -564,24 +564,24 @@ Case:  n=0
 Show:
   P(0)
 = sum_to 0 = 0 * (0+1) / 2
-= 0 = 0 * (0+1) / 2         // simplifying sum_to 0 
-= 0 = 0                     // 0 * x = 0 
+= 0 = 0 * (0+1) / 2         // simplifying sum_to 0
+= 0 = 0                     // 0 * x = 0
 
 Case:  n=k+1
 IH:  P(k) = sum_to k = k * (k+1) / 2
 Show:
   P(k+1)
 = sum_to (k+1) = (k+1) * (k+1+1) / 2
-= k + 1 + sum_to k = (k+1) * (k+1+1) / 2          // simplifying sum_to (k+1) 
-= k + 1 + k * (k+1) / 2 = (k+1) * (k+1+1) / 2     // using IH 
-= 2 + 3k + k*k = 2 + 3k + k*k                     // simplifying terms on each side 
+= k + 1 + sum_to k = (k+1) * (k+1+1) / 2          // simplifying sum_to (k+1)
+= k + 1 + k * (k+1) / 2 = (k+1) * (k+1+1) / 2     // using IH
+= 2 + 3k + k*k = 2 + 3k + k*k                     // simplifying terms on each side
 
 QED
 >>
 
 Now let's do the proof in Coq. *)
 
-Theorem sum_sq : forall n : nat, 
+Theorem sum_sq : forall n : nat,
   sum_to n = n * (n+1) / 2.
 Proof.
   intros n.
@@ -591,7 +591,7 @@ Proof.
 Abort.
 
 
-(** The proof is working fine so far, but now we have a complicated algebraic 
+(** The proof is working fine so far, but now we have a complicated algebraic
 equation we need to prove:
 <<
 S (k + k * (k + 1) / 2) = fst (Nat.divmod (k + 1 + k * S (k + 1)) 1 0 0)
@@ -609,13 +609,13 @@ division, and rings do not support division operations.
 To avoid having to reason about division, we could rewrite the theorem we want
 to prove:  by multiplying both sides by 2, the division goes away: *)
 
-Theorem sum_sq_no_div : forall n : nat, 
+Theorem sum_sq_no_div : forall n : nat,
   2 * sum_to n = n * (n+1).
 Proof.
   intros n.
   induction n as [ | k IH].
   - trivial.
-  - simpl. 
+  - simpl.
 Abort.
 
 (** Now, after the call to [simpl], we don't have any division, but we also
@@ -639,11 +639,11 @@ Qed.
 
 (** The proof above simplifies the application of [sum_to (S n)], then invokes a
 new tactic called [ring].  That tactic is able to automatically search for
-proofs of equations involving addition and multiplication of natural numbers. 
+proofs of equations involving addition and multiplication of natural numbers.
 
 Now that we have our helper lemma, we can use it to prove the theorem: *)
 
-Theorem sum_sq_no_div : forall n : nat, 
+Theorem sum_sq_no_div : forall n : nat,
   2 * sum_to n = n * (n+1).
 Proof.
   intros n.
@@ -652,11 +652,11 @@ Proof.
   - rewrite -> sum_helper.
     rewrite -> IH.
     ring.
-Qed. 
+Qed.
 
 (** Once more, after doing the rewriting with the lemma and the inductive
 hypothesis, we're left with algebraic equations that can be proved simply by
-invoking the [ring] tactic. 
+invoking the [ring] tactic.
 
 Finally, we can use [sum_sq_no_div] to prove the original theorem involving
 division.  To do that, we need to first prove another lemma that shows we can
@@ -673,25 +673,25 @@ Proof.
   assumption.
 Qed.
 
-(** 
+(**
 That lemma involves two library theorems, [mult_comm] and [Nat.div_mul]. How
 did we know to use these?  Coq can help us search for useful theorems. Right
 after we [rewrite <- eq] in the above proof, our subgoal is [a = c * a / c]. It
 looks like we ought to be able to cancel the [c] term on the right-hand side.
 So we can search for a theorem that would help us do that.  The [Search] command
 takes wildcards and reports all theorems that match the pattern we supply, for
-example: 
-*) 
+example:
+*)
 
 Search (_ * _ / _).
 
 (** Unfortunately, the search results currently seem to be broken in Visual
 Studio Code:  we get only one matching library theorem, instead of all of them.
 Doing the search in [coqide] or [coqtop] (the Coq REPL), or just browsing
-through the web documentation, does reveal a useful theorem: 
-<< 
-Nat.div_mul: forall a b : nat, b <> 0 -> a * b / b = a 
->> 
+through the web documentation, does reveal a useful theorem:
+<<
+Nat.div_mul: forall a b : nat, b <> 0 -> a * b / b = a
+>>
 That would let us cancel a term from the numerator and denominator, but it
 requires the left-hand side of the equality to be of the form [a * b / b],
 whereas we have [c * a / b].  The problem is that the two sides of the
@@ -710,7 +710,7 @@ above.
 
 Finally, we can use that lemma to prove our classic theorem about summation. *)
 
-Theorem sum_sq : forall n : nat, 
+Theorem sum_sq : forall n : nat,
   sum_to n = n * (n+1) / 2.
 
 Proof.
@@ -755,16 +755,16 @@ end
 >>
 
 We could implement that signature with a representation type [t] that is [int],
-or [float], or even [bool].  
+or [float], or even [bool].
 
 The names given in [Ring] are suggestive of the operations they represent, but
 to really specify how those operations should behave, we need to write some
 equations that relate them.  Below are the equations that (it turns out) fully
 specify [zero], [one], [add], and [mult].  Rather than use those identifiers, we
-use the more familiar notation of [0], [1], [+], and [*]. 
+use the more familiar notation of [0], [1], [+], and [*].
 
 <<
-0 + x = 0 
+0 + x = 0
 x + y = y + x
 x + (y + z) = (x + y) + z
 
@@ -779,7 +779,7 @@ x * (y * z) = (x * y) * z
 Technically these equations specify what is known as a _commutative semi-ring_.
 It's a _semi_-ring because we don't have equations specifying negation yet.
 It's a _commutative_ semi-ring because the [*] operation commutes. (The [+]
-operation commutes too, but that's always required of a semi-ring.)  
+operation commutes too, but that's always required of a semi-ring.)
 
 The first group of equations specifies how [+] behaves on its own. The second
 group specifies how [*] behaves on its own. The final equation specifies how [+]
@@ -820,7 +820,7 @@ us when we wrote [Require Import Arith] earlier in this file. We can use the
 are two examples. *)
 
 Theorem plus_comm : forall a b,
-  a + b = b + a. 
+  a + b = b + a.
 Proof.
   intros a b. ring.
 Qed.
@@ -885,7 +885,7 @@ Theorem sub_add_1 : forall a : Z, a - 1 + 1 = a.
 Proof.
   intros a. ring.
 Qed.
-    
+
 (** Before going on, let's close the [Z] scope so that the operators go back to
 working on [nat], as usual. *)
 
@@ -914,7 +914,7 @@ Open Scope Qc_scope.
 
 Theorem frac_qc: forall x y z : Qc, z <> 0 -> (x + y) / z = x / z + y /z.
 Proof.
-  intros x y z z_not_0.  
+  intros x y z z_not_0.
   field. assumption.
 Qed.
 
@@ -923,7 +923,7 @@ Close Scope Qc_scope.
 (** The real numbers are provided in the [Reals] library.  Here's that same
 theorem again. *)
 
-Module RealExample. 
+Module RealExample.
 
 (** This code is in its own module for an annoying reason: [Reals] redefines its
 own [nil], which will interefere with the examples want to give further below in
@@ -945,7 +945,7 @@ us with an unprovable subgoal, as in the proof below. *)
 Theorem frac_r_broken : forall x y z, (x + y) / z = x / z + y /z.
 Proof.
   intros x y z.
-  field. 
+  field.
 Abort.
 
 Close Scope R_scope.
@@ -957,9 +957,9 @@ End RealExample.
 
 ** Induction principles
 
-When we studied the Curry-Howard correspondence, we learned that proofs 
+When we studied the Curry-Howard correspondence, we learned that proofs
 correspond to programs.  That correspondence applies to inductive proofs
-as well, and as it turns out, inductive proofs correspond to recursive 
+as well, and as it turns out, inductive proofs correspond to recursive
 programs.  Intuitively, that's because an inductive proof involves
 an inductive hypothesis---which is an instance of the theorem that
 is being proved, but applied to a smaller value.  Likewise, recursive
@@ -976,7 +976,7 @@ Print app_nil.
 (**
 Coq responds:
 <<
-app_nil = 
+app_nil =
 fun (A : Type) (lst : list A) =>
 list_ind (fun lst0 : list A => lst0 ++ nil = lst0) eq_refl
   (fun (h : A) (t : list A) (IH : t ++ nil = t) =>
@@ -1009,18 +1009,18 @@ In more detail, it takes these arguments:
 - [A], which is the type of the list elements.
 
 - [P], which is the property to be proved by induction.  For example,
-  the property being proved in [app_nil] is 
+  the property being proved in [app_nil] is
   [fun (lst: list A) => lst ++ nil = lst].
 
 - [P nil], which is a proof that [P] holds of the empty list.  In other words,
   a proof of the base case.
-  
-- A final argument of type [forall (a : A) (l : list A), P l -> P (a :: l)].  
-  This is the proof of the inductive case.  It takes an argument [a], 
+
+- A final argument of type [forall (a : A) (l : list A), P l -> P (a :: l)].
+  This is the proof of the inductive case.  It takes an argument [a],
   which is the head of a list, [l], which is the tail of a list, and
-  a proof [P l] that [P] holds of [l].  So, [P l] is the inductive 
+  a proof [P l] that [P] holds of [l].  So, [P l] is the inductive
   hypothesis.  The output is of type [P (a :: l)], which is a proof
-  that [P] holds of [a::l].  
+  that [P] holds of [a::l].
 
 Finally, [list_ind] returns a value of type [forall l : list A, P l],
 which is a proof that [P] holds of all lists.
@@ -1037,7 +1037,7 @@ Print list_ind.
 (**
 Coq responds:
 <<
-list_ind = 
+list_ind =
 fun (A : Type) (P : list A -> Prop) => list_rect P
 ...
 >>
@@ -1049,16 +1049,16 @@ understand, but alludes to [rec]ursion over a [t]ype.) Before we look at
 implementation that is easier to read: *)
 
 Fixpoint my_list_rect
-  (A : Type) 
+  (A : Type)
   (P : list A -> Prop)
   (baseCase : P nil)
-  (inductiveCase : forall (h : A) (t : list A), P t -> P (h::t)) 
-  (lst : list A) 
+  (inductiveCase : forall (h : A) (t : list A), P t -> P (h::t))
+  (lst : list A)
   : P lst
 :=
   match lst with
   | nil => baseCase
-  | h::t => inductiveCase h t 
+  | h::t => inductiveCase h t
               (my_list_rect A P baseCase inductiveCase t)
   end.
 
@@ -1066,7 +1066,7 @@ Fixpoint my_list_rect
 an element type, a property to be proved, a proof of the base case, and a proof
 of the inductive case.  Then [my_list_rect] takes an argument [lst], which is
 the list for which we want to prove that [P] holds.  Finally, [my_list_rect]
-returns that proof specifically for [lst]. 
+returns that proof specifically for [lst].
 
 The body of [my_list_rect] constructs the proof that [P] holds of [lst].
 It does so by matching against [lst]:
@@ -1088,11 +1088,11 @@ It's not immediately obvious, but [my_list_rect] is almost just [fold_right].
 Here's how we could implement [fold_right] in Coq, with a slightly different
 argument order than the same function in OCaml: *)
 
-Fixpoint my_fold_right 
-  {A B : Type} 
-  (init : B) 
-  (f : A -> B -> B) 
-  (lst : list A) 
+Fixpoint my_fold_right
+  {A B : Type}
+  (init : B)
+  (f : A -> B -> B)
+  (lst : list A)
 :=
   match lst with
   | nil => init
@@ -1135,7 +1135,7 @@ Print list_rect.
 
 (** Coq responds:
 <<
-list_rect = 
+list_rect =
 fun (A : Type) (P : list A -> Type) (f : P nil)
   (f0 : forall (a : A) (l : list A), P l -> P (a :: l)) =>
 fix F (l : list A) : P l :=
@@ -1150,7 +1150,7 @@ fix F (l : list A) : P l :=
 >>
 
 That uses different syntax, but it ends up defining the same function as
-[my_list_rect].  
+[my_list_rect].
 
 Whenever you define an inductive type, Coq automatically generates the induction
 principle and recursive function that implements it for you. For example, we
@@ -1164,8 +1164,185 @@ Inductive mylist (A:Type) : Type :=
 
 Print mylist_ind.
 
+(**
+
+(**********************************************************************)
+
+** Extraction
+
+Coq makes it possible to _extract_ OCaml code (or Haskell or Scheme) from
+Coq code.  That makes it possible for us to 
+
+- write Coq code,
+- prove the Coq code is correct, and
+- extract OCaml code that can be compiled and run more efficiently
+  than the original Coq code.
+  
+Let's first prove that a tail recursive factorial is equivalent to the non-tail-recursive one, and then extract the code for the tail recursive factorial. 
+
+*)
+
+Fixpoint fact (n:nat) : nat :=
+  match n with
+  | 0 => 1
+  | S k => n * fact k
+  end.
+
+Fixpoint fact_tail_rec' (n : nat) (acc: nat) : nat :=
+  match n with
+  | 0 => acc
+  | S k => fact_tail_rec' k (acc * n)
+  end.
+
+Definition fact_tail_rec (n : nat) := fact_tail_rec' n 1.
 
 (**
+
+We need to prove an intermediate lemma about [fact_tail_rec'] for the proof of our main theorem to go through. 
+
+*)
+
+Lemma fact_tail_rec_lem : forall n acc,
+  fact_tail_rec' n acc = acc * fact_tail_rec' n 1.
+Proof.
+  intro n.
+  induction n.
+  - intro acc. simpl. ring.
+  - intro acc. simpl (fact_tail_rec' (S n) 1). rewrite IHn. simpl. rewrite IHn. ring.
+Qed.
+
+(**
+
+In the above proof, the [simpl] tactic is applied with a specific pattern only on which simplification occurs. This is done so that the subsequent [rewrite] tactic does not pick the wrong term to rewrite. Try changing [simpl (fact_tail_rec' (S n) 1)] to [simpl] and make the proof go through. 
+
+
+Now we are ready to prove our main theorem. The proof involves induction on the input and an application of the lemma [fact_tail_rec_lem] that we had proved. 
+
+*)
+
+Theorem fact_tail_rec_ok : forall n, fact n = fact_tail_rec n.
+Proof.
+  unfold fact_tail_rec.
+  induction n.
+  - simpl. trivial.
+  - simpl. rewrite fact_tail_rec_lem. simpl. rewrite IHn. ring.
+Qed.
+
+(**
+
+Let's extract [fact_tail_rec] as an example.
+
+*)
+
+Require Import Extraction.
+Extraction Language OCaml.
+Extraction "/tmp/fact.ml" fact_tail_rec.
+
+(** 
+
+That produces the following file:
+
+<<
+
+type nat =
+| O
+| S of nat
+
+(** val add : nat -> nat -> nat **)
+
+let rec add n m =
+  match n with
+  | O -> m
+  | S p -> S (add p m)
+
+(** val mul : nat -> nat -> nat **)
+
+let rec mul n m =
+  match n with
+  | O -> O
+  | S p -> add m (mul p m)
+
+(** val fact_tail_rec' : nat -> nat -> nat **)
+
+let rec fact_tail_rec' n acc =
+  match n with
+  | O -> acc
+  | S k -> fact_tail_rec' k (mul acc n)
+
+(** val fact_tail_rec : nat -> nat **)
+
+let fact_tail_rec n =
+  fact_tail_rec' n (S O)
+  
+>>
+
+As you can see, Coq has preserved the [nat] type in this extracted
+code.  Unforunately, computation on natural numbers is not efficient.
+(Addition requires linear time; multiplication, quadratic!)  
+
+We can direct Coq to extract its own [nat] type to OCaml's [int]
+type as follows:
+
+*)
+
+Extract Inductive nat => 
+  int [ "0" "succ" ] "(fun fO fS n -> if n=0 then fO () else fS (n-1))".
+Extract Inlined Constant Init.Nat.mul => "( * )".
+
+(**
+The first command says to 
+
+- use [int] instead of [nat] in the extract code,
+- use [0] instead of [O] and [succ] instead of [S]
+  (the [succ] function is in [Pervasives] and is [fun x -> x + 1]), and
+- use the provided function to emulate pattern matching over the type.
+
+The second command says to use OCaml's integer [( * )] operator instead of
+Coq's natural-number multiplication operator.
+
+After issuing those commands, the extraction looks cleaner:
+
+*)
+
+Extraction "/tmp/fact.ml" fact_tail_rec.
+
+(**
+<<
+
+(** val fact_tail_rec' : int -> int -> int **)
+
+let rec fact_tail_rec' n acc =
+  (fun fO fS n -> if n=0 then fO () else fS (n-1))
+    (fun _ -> acc)
+    (fun k -> fact_tail_rec' k (( * ) acc n))
+    n
+
+(** val fact_tail_rec : int -> int **)
+
+let fact_tail_rec n =
+  fact_tail_rec' n (succ 0)
+
+>>
+
+There is, however, a tradeoff.  The original version we extracted worked
+(albeit inefficiently) for arbitrarily large numbers without any error.
+But the second version is subject to integer overflow errors.  So the
+proofs of correctness that we did for [fact_tail_rec] are no longer completely
+applicable:  they hold only up to the limits of the types we subsituted
+during extraction.  
+
+Do we truly care about the limits of machine arithmetic?  Maybe, maybe not.
+For sake of this little example, we might not.  If we were verifying
+software to control the flight dynamics of a space shuttle, maybe we
+would.  The Coq standard library does contain a module 31-bit
+integers and operators on them, which we could use if we wanted to 
+precisely model what would happen on a particular architecture.
+
+*)
+
+(**
+
+(**********************************************************************)
 
 ** Summary
 
@@ -1206,12 +1383,12 @@ inductive hypothesis.
 
 ** Further reading
 
-- _Software Foundations, Volume 1: Logical Foundations_. 
+- _Software Foundations, Volume 1: Logical Foundations_.
   #<a href="https://softwarefoundations.cis.upenn.edu/lf-current/toc.html">
   Chapter 2 through 4: Induction, Lists, Poly</a>#.
 
 - _Interactive Theorem Proving and Program Development_.
-  Chapters 6 through 10. Available 
+  Chapters 6 through 10. Available
   #<a href="https://newcatalog.library.cornell.edu/catalog/10131206">
   online from the Cornell library</a>#.
 
