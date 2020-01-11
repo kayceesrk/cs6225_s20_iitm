@@ -1,6 +1,7 @@
 (**
 * Induction in Coq
 
+  From: https://www.cs.cornell.edu/courses/cs3110/2018sp/l/22-coq-induction/notes.v
 -----
 #<i>#
 Topics:
@@ -1171,14 +1172,14 @@ Print mylist_ind.
 ** Extraction
 
 Coq makes it possible to _extract_ OCaml code (or Haskell or Scheme) from
-Coq code.  That makes it possible for us to 
+Coq code.  That makes it possible for us to
 
 - write Coq code,
 - prove the Coq code is correct, and
 - extract OCaml code that can be compiled and run more efficiently
   than the original Coq code.
-  
-Let's first prove that a tail recursive factorial is equivalent to the non-tail-recursive one, and then extract the code for the tail recursive factorial. 
+
+Let's first prove that a tail recursive factorial is equivalent to the non-tail-recursive one, and then extract the code for the tail recursive factorial.
 
 *)
 
@@ -1198,7 +1199,7 @@ Definition fact_tail_rec (n : nat) := fact_tail_rec' n 1.
 
 (**
 
-We need to prove an intermediate lemma about [fact_tail_rec'] for the proof of our main theorem to go through. 
+We need to prove an intermediate lemma about [fact_tail_rec'] for the proof of our main theorem to go through.
 
 *)
 
@@ -1213,10 +1214,10 @@ Qed.
 
 (**
 
-In the above proof, the [simpl] tactic is applied with a specific pattern only on which simplification occurs. This is done so that the subsequent [rewrite] tactic does not pick the wrong term to rewrite. Try changing [simpl (fact_tail_rec' (S n) 1)] to [simpl] and make the proof go through. 
+In the above proof, the [simpl] tactic is applied with a specific pattern only on which simplification occurs. This is done so that the subsequent [rewrite] tactic does not pick the wrong term to rewrite. Try changing [simpl (fact_tail_rec' (S n) 1)] to [simpl] and make the proof go through.
 
 
-Now we are ready to prove our main theorem. The proof involves induction on the input and an application of the lemma [fact_tail_rec_lem] that we had proved. 
+Now we are ready to prove our main theorem. The proof involves induction on the input and an application of the lemma [fact_tail_rec_lem] that we had proved.
 
 *)
 
@@ -1238,7 +1239,7 @@ Require Import Extraction.
 Extraction Language OCaml.
 Extraction "/tmp/fact.ml" fact_tail_rec.
 
-(** 
+(**
 
 That produces the following file:
 
@@ -1273,24 +1274,24 @@ let rec fact_tail_rec' n acc =
 
 let fact_tail_rec n =
   fact_tail_rec' n (S O)
-  
+
 >>
 
 As you can see, Coq has preserved the [nat] type in this extracted
 code.  Unforunately, computation on natural numbers is not efficient.
-(Addition requires linear time; multiplication, quadratic!)  
+(Addition requires linear time; multiplication, quadratic!)
 
 We can direct Coq to extract its own [nat] type to OCaml's [int]
 type as follows:
 
 *)
 
-Extract Inductive nat => 
+Extract Inductive nat =>
   int [ "0" "succ" ] "(fun fO fS n -> if n=0 then fO () else fS (n-1))".
 Extract Inlined Constant Init.Nat.mul => "( * )".
 
 (**
-The first command says to 
+The first command says to
 
 - use [int] instead of [nat] in the extract code,
 - use [0] instead of [O] and [succ] instead of [S]
@@ -1329,13 +1330,13 @@ There is, however, a tradeoff.  The original version we extracted worked
 But the second version is subject to integer overflow errors.  So the
 proofs of correctness that we did for [fact_tail_rec] are no longer completely
 applicable:  they hold only up to the limits of the types we subsituted
-during extraction.  
+during extraction.
 
 Do we truly care about the limits of machine arithmetic?  Maybe, maybe not.
 For sake of this little example, we might not.  If we were verifying
 software to control the flight dynamics of a space shuttle, maybe we
 would.  The Coq standard library does contain a module 31-bit
-integers and operators on them, which we could use if we wanted to 
+integers and operators on them, which we could use if we wanted to
 precisely model what would happen on a particular architecture.
 
 *)

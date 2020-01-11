@@ -1,6 +1,8 @@
 (**
 * Functional Programming in Coq
 
+  From: https://www.cs.cornell.edu/courses/cs3110/2018sp/l/19-coq-fp/notes.v
+
 -----
 #<i>#
 Topics:

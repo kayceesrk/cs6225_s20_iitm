@@ -1,6 +1,7 @@
 (** 
 * Logic in Coq
-
+  
+  From: https://www.cs.cornell.edu/courses/cs3110/2018sp/l/20-coq-logic/notes.v 
 -----
 #<i>#
 Topics:
@@ -303,7 +304,7 @@ programs before you begin typing them.
 
 So why does this proposition hold?  It's rather trivial, really.  If [P] holds,
 then certainly [P] holds.  That is, [P] implies itself. An example in English
-could be "if 3110 is fun, then 3110 is fun." If you've already assumed [P], then
+could be "if 6225 is fun, then 6225 is fun." If you've already assumed [P], then
 necessarily [P] follows from your assumptions:  that's what it means to be an
 assumption.  
 
@@ -1135,10 +1136,7 @@ fun (P : Prop) (f : False) => match f return P with
 (The [return P] in the pattern match above is a type annotation: it says
 that the return type of the entire [match] expression is [P].)
 
-Note that [False_ind] just calls [False_rect], and [False_rect] immediately does
-a pattern match.  So we could simplify the proof of [explosion] by just directly
-writing that pattern match ourselves.  Let's do that using the [Definition]
-command we saw above. 
+We could simplify the proof of [explosion] by just directly writing that pattern match ourselves.  Let's do that using the [Definition] command we saw above. 
 *)
 
 Definition explosion' : forall (P:Prop), False -> P := 
@@ -1305,7 +1303,7 @@ be able to derive anything at all.  One kind of contradiction is for a
 proposition and its negation to hold simultaneously, e.g., [P /\ ~P].
 *)
 
-Theorem contra_implies_anything : forall P Q, P /\ ~P -> Q.
+Theorem contra_implies_anything : forall (P Q : Prop), P /\ ~P -> Q.
 (** Intuition:  principle of explosion *)
 Proof.
     unfold not.
@@ -1327,17 +1325,17 @@ Print contra_implies_anything.
 Coq responds:
 <<
 contra_implies_anything = 
-fun (P : Prop) (Q : Type) (PandnotP : P /\ (P -> False)) =>
+fun (P Q : Prop) (PandnotP : P /\ (P -> False)) =>
 match PandnotP with
-| conj P_holds notP_holds => False_rect Q (notP_holds P_holds)
+| conj P_holds notP_holds => False_ind Q (notP_holds P_holds)
 end
-     : forall (P : Prop) (Q : Type), P /\ ~ P -> Q
+     : forall P Q : Prop, P /\ ~ P -> Q
 >>
 
 The really interesting part of this is the body of the pattern match,
 [False_rect Q (notP_holds P_holds)].  It applies [notP_holds] to [P_holds], thus
 transforming evidence for [P] into evidence for [False]. It passes that
-hypothetical evidence for [False] to [False_rect], which as we've seen before
+hypothetical evidence for [False] to [False_ind], which as we've seen before
 uses such evidence to produce evidence for anything at all that we would
 like---in this case, [Q], its first argument.
 
