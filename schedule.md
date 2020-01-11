@@ -18,3 +18,4 @@ permalink: /schedule/
 | 10 | Lambda Calculus | | [Coq]({{site.baseurl}}/lectures/LambdaCalculus.v) | |
 | 11 | Hoare Logic | | [Coq]({{site.baseurl}}/lectures/HoareLogic.v) | |
 | 12 | Functional Programming in F\* | | [slides(pdf)]({{site.baseurl}}/lectures/1_fstar_functional_programming.key) [fst]({{site.baseurl}}/lectures/fstar_functional.fst) | |
+| 12 | Verifying Functional Programs in F\* | | [fst]({{site.baseurl}}/lectures/fstar_verification.fst) | |
