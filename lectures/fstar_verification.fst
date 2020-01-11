@@ -28,7 +28,14 @@ let rec factorial2 n =
    Similarly, [Dv] is just an abbreviation for:
 
    [Dv t = Div t (requires True) (ensures (fun _ -> True))]
+
+   Also, requires and ensures are there only for readability. You can drop them
+   if you want.
 *)
+
+val factorial3 : x : int -> Pure int (x >= 0) (fun y -> y >= 0)
+let rec factorial3 n =
+  if n = 0 then 1 else n * factorial3 (n-1)
 
 (******************************************************************************)
 
@@ -69,6 +76,8 @@ let rec append l1 l2 =
   match l1 with
   | [] -> l2
   | x::xs -> x::(append xs l2)
+
+(******************************************************************************)
 
 (* Extrinsically verifying append 
 
@@ -111,3 +120,85 @@ let rec append_len2 (l1 l2 : list 'a) :
   match l1 with
   | [] -> ()
   | x::xs -> append_len2 xs l2
+
+(******************************************************************************)
+
+(** Some times Lemmas are unavoidable. *)
+
+let snoc l h = l @ [h]
+
+(* [#a] is an implicit argument for the [rev] function. You don't need to 
+   specify it explicitly when calling the function. But can be optionally 
+   added. *)
+val rev: #a:Type -> list a -> Tot (list a)
+let rec rev (#a:Type) l =
+  match l with
+  | [] -> []
+  | hd::tl -> snoc (rev (* #a *) tl) hd
+
+(* We want to show that [forall l. rev(rev l) = l]. But this cannot be directly
+   expressed as refinement as F* needs to apply two separate inductions,
+   neither of which it can apply *)
+
+(*
+val rev2 : #a:Type -> f:(list a -> Tot (list a)){forall l. f(f(l)) == l}
+let rev2 (#a:Type) l =
+  match l with
+  | [] -> []
+  | hd::tl -> snoc (rev tl) hd
+*)
+
+
+val rev_snoc: #a:Type -> l:list a -> h:a -> Lemma (rev (snoc l h) == h::rev l)
+let rec rev_snoc (#a:Type) l h =
+  match l with
+  | [] -> ()
+  | hd::tl -> rev_snoc tl h
+
+val rev_involutive: #a:Type -> l:list a -> Lemma (rev (rev l) == l)
+let rec rev_involutive (#a:Type) l =
+  match l with
+  | [] -> ()
+  | hd::tl ->
+      // (1) [rev (rev tl) == tl]
+      rev_involutive tl;
+      // (2) [rev (snoc (rev tl) hd) == hd::(rev (rev tl))]
+      rev_snoc (rev tl) hd
+      // These two facts are enough for Z3 to prove the lemma:
+      //   rev (rev (hd :: tl)) == hd::tl   {To Prove}
+      //   rev (snoc (rev tl) hd) == hd::tl {By def}
+      //   hd::(rev (rev tl)) == hd::tl     {By (2)}
+      //   hd::tl == hd::tl                 {By (1)}
+
+(******************************************************************************)
+
+(** More verification 
+
+    Let's define membership on list. Unlike OCaml, F* doesn't provide equality
+    on every type. This is because not all types have decidable equality. So in
+    order to write mem we cannot quantify over arbitrary types, but only over
+    those with decidable equality. *)
+
+(* [#a:eqtype] is syntactic sugar for [#a:Type{hasEq a}] *)
+val mem: #a:eqtype -> a -> list a -> Tot bool
+let rec mem #a x xs =
+  match xs with
+  | [] -> false
+  | hd :: tl -> hd = x || mem x tl
+
+val append_mem:  #a:eqtype -> l1:list a -> l2:list a -> x:a
+        -> Lemma (mem x (append l1 l2) <==> mem x l1 || mem x l2)
+let rec append_mem (#a:eqtype) l1 l2 x =
+  match l1 with
+  | [] -> ()
+  | hd::tl -> append_mem tl l2 x 
+  // mem x (hd::(append tl l2)) <==> hd=x || mem x tl || mem x l2.
+
+(* [rev] is injective *)
+
+val rev_injective : #a:Type -> l1:list a -> l2:list a
+                -> Lemma (requires (rev l1 == rev l2))
+                         (ensures  (l1 == l2))
+let rec rev_injective (#a:Type) l1 l2 = 
+  rev_involutive l1; rev_involutive l2
+  //Use the fact that every involutive function is injective

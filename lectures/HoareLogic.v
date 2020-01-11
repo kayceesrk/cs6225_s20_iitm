@@ -638,35 +638,3 @@ Proof.
   apply forever_ok.
   simplify; trivial.
 Qed.
-
-(* Weakest Precondition *)
-
-Inductive wp : assertion -> cmd -> assertion -> Prop := 
-| Wp : forall P c Q,
-    {{P}} c {{Q}} ->
-    (forall P', {{P'}} c {{Q}} -> forall h v, P' h v -> P h v) ->
-    wp P c Q.
-
-Inductive hoare_triple' : assertion -> cmd -> assertion -> Prop :=
-| HtAssign' : forall (Q : assertion) x e,
-  hoare_triple' (fun h v => exists v', forall l, l <> "x" /\ v $? l = v' $? l) (Assign x e) Q.
-
-Lemma HtWeakenPre : forall (P P' Q: assertion) c,
-  hoare_triple P c Q
-  -> (forall h v, P' h v -> P h v)
-  -> hoare_triple P' c Q.
-Proof.
-  simplify; eapply HtConsequence; eauto.
-Qed.
-
-Definition write_x :=
-  ("x" <- "x" + 1)%cmd.
-  
-Check f_equal.
-  
-Theorem wp_write_x : wp (fun _ v => v = $0 $+ ("x", 0)) write_x (fun _ v => v = $0 $+ ("x", 1)).
-  constructor.
-  ht.
-  intros.
-  unfold write_x in *.
-  ht.
