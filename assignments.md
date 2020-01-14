@@ -4,8 +4,17 @@ title: Assignments
 permalink: /assignments/
 ---
 
+For the assignments, I would recommend cloning the [course
+website](https://github.com/kayceesrk/cs6225_s20_iitm), and find the assignments
+under `assignments/pset*`. 
+
 All assignments should be submitted through the [course
-moodle]().
+moodle](https://courses.iitm.ac.in/course/view.php?id=5339). 
+
+| Problem Set | Released | Due Date |
+|------------:|----------|----------|
+| 1 | 14/01/2020 | 21/01/2020 |
+
 
 ## Assignment late penalties
 
