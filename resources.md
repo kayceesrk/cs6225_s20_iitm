@@ -4,6 +4,11 @@ title: Resources
 permalink: /resources/
 ---
 
+# Course Website
+
+This course website, including all of the lecture materials, lives
+[here](http://kcsrk.info/cs6225_s20_iitm/).
+
 # Software
 
 ## Coq
