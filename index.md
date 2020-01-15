@@ -61,7 +61,7 @@ Time:
   * M 1100 - 1150
   * Tu 1000 - 1050
   * W 0900 - 0950
-  * Th 1300 - 1350
+  * Th 1200 - 1250
 
 ## Credits
 
@@ -75,7 +75,7 @@ Time:
 
 ## Pre-requisite
 
-[CS3100](http://kcsrk.info/cs3100_f19/) (only the OCaml parts) or Equivalent. 
+[CS3100](http://kcsrk.info/cs3100_f19/) (only the OCaml parts) or equivalent. 
 
 You should feel comfortable with functional programming concepts. If you are
 able to get through the assignments 1 to 4, you are ready for this course. All

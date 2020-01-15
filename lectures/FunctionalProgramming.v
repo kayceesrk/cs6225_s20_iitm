@@ -1,4 +1,5 @@
 (**
+
 * Functional Programming in Coq
 
   From: https://www.cs.cornell.edu/courses/cs3110/2018sp/l/19-coq-fp/notes.v
@@ -39,6 +40,7 @@ Inductive day : Type :=
 | sat : day.
 
 (**
+
 You'll note some differences from OCaml:
 
 - The definition starts with the keyword [Inductive] instead of the keyword
