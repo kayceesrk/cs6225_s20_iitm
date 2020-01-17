@@ -1692,7 +1692,19 @@ Q), Q] as follows:
   that [Q] holds.
 
 What is such a "thing"?  A function!  It transforms evidence for one proposition
-into evidence for another proposition.  
+into evidence for another proposition. *)
+
+Definition is_zero n :=
+  match n with
+  | 0 => true
+  | _ => false
+  end.
+
+Definition is_zero' : nat -> bool := is_zero.
+
+Definition is_zero'' : forall (_:nat), bool := is_zero.
+
+(**
 
 So of all the logic we've coded up in Coq in this file, the only truly primitive
 pieces are [Inductive] definitions and [forall] types. Everything
