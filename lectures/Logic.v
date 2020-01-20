@@ -1694,13 +1694,32 @@ Q), Q] as follows:
 What is such a "thing"?  A function!  It transforms evidence for one proposition
 into evidence for another proposition. *)
 
+Definition pnqiq : forall P Q, P /\ Q -> Q := fun P Q pnq =>
+  match pnq with
+  | conj evP evQ => evQ
+  end.
+  
+Definition pnqiq' : forall P Q, forall (_: P /\ Q), Q := pnqiq.
+
+(** 
+ You can also see this duality with familiar functions. For example, consider 
+ the [is_zero] function that returns [true] if the given number is [0]. *)
+
 Definition is_zero n :=
   match n with
   | 0 => true
   | _ => false
   end.
 
+(**
+ This function has the type [nat -> bool].
+ *)
+
 Definition is_zero' : nat -> bool := is_zero.
+
+(** 
+ Equivalently, we can also assign the type [forall (_:nat), bool] to the [is_zero]
+ function. *)
 
 Definition is_zero'' : forall (_:nat), bool := is_zero.
 

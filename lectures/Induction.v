@@ -686,10 +686,7 @@ example:
 
 Search (_ * _ / _).
 
-(** Unfortunately, the search results currently seem to be broken in Visual
-Studio Code:  we get only one matching library theorem, instead of all of them.
-Doing the search in [coqide] or [coqtop] (the Coq REPL), or just browsing
-through the web documentation, does reveal a useful theorem:
+(** This reveals a useful theorem:
 <<
 Nat.div_mul: forall a b : nat, b <> 0 -> a * b / b = a
 >>
@@ -1038,18 +1035,25 @@ Print list_ind.
 (**
 Coq responds:
 <<
-list_ind =
-fun (A : Type) (P : list A -> Prop) => list_rect P
+list_ind = 
+fun (A : Type) (P : list A -> Prop) (f : P [])
+  (f0 : forall (a : A) (l : list A), P l -> P (a :: l)) =>
+fix F (l : list A) : P l :=
+  match l as l0 return (P l0) with
+  | [] => f
+  | y :: l0 => f0 y l0 (F l0)
+  end
+     : forall (A : Type) (P : list A -> Prop),
+       P [] ->
+       (forall (a : A) (l : list A), P l -> P (a :: l)) ->
+       forall l : list A, P l
 ...
 >>
 
-So [list_ind] takes in [A] and [P] and just immediately applies another
-function, [list_rect], to [P].  (The name [rect] is not especially helpful to
-understand, but alludes to [rec]ursion over a [t]ype.) Before we look at
-[list_rect]'s actual implementation, let's look at our own equivalent
-implementation that is easier to read: *)
+Before we look at [list_ind]'s actual implementation, let's look at our own
+equivalent implementation that is easier to read: *)
 
-Fixpoint my_list_rect
+Fixpoint my_list_ind
   (A : Type)
   (P : list A -> Prop)
   (baseCase : P nil)
@@ -1060,24 +1064,24 @@ Fixpoint my_list_rect
   match lst with
   | nil => baseCase
   | h::t => inductiveCase h t
-              (my_list_rect A P baseCase inductiveCase t)
+              (my_list_ind A P baseCase inductiveCase t)
   end.
 
-(** The arguments to [my_list_rect] are the same as the arguments to [list_ind]:
+(** The arguments to [my_list_ind] are the same as the arguments to [list_ind]:
 an element type, a property to be proved, a proof of the base case, and a proof
-of the inductive case.  Then [my_list_rect] takes an argument [lst], which is
-the list for which we want to prove that [P] holds.  Finally, [my_list_rect]
+of the inductive case.  Then [my_list_ind] takes an argument [lst], which is
+the list for which we want to prove that [P] holds.  Finally, [my_list_ind]
 returns that proof specifically for [lst].
 
-The body of [my_list_rect] constructs the proof that [P] holds of [lst].
+The body of [my_list_ind] constructs the proof that [P] holds of [lst].
 It does so by matching against [lst]:
 
-- If [lst] is empty, then [my_list_rect] returns the proof of the base case.
+- If [lst] is empty, then [my_list_ind] returns the proof of the base case.
 
-- If [lst] is [h::t], then [my_list_rect] returns the proof of the inductive
+- If [lst] is [h::t], then [my_list_ind] returns the proof of the inductive
   case.  To construct that proof, it applies [inductiveCase] to [h] and [t] as
   the head and tail.  But [inductiveCase] also requires a final argument, which
-  is the proof that [P] holds of [t].  To construct that proof, [my_list_rect]
+  is the proof that [P] holds of [t].  To construct that proof, [my_list_ind]
   calls itself recursively on [t].
 
 That recursive call is exactly why we said that inductive proofs are recursive
@@ -1085,7 +1089,7 @@ programs.  The inductive proof needs evidence that the inductive hypothesis
 holds of the smaller list, and recursing on that smaller list produces the
 evidence.
 
-It's not immediately obvious, but [my_list_rect] is almost just [fold_right].
+It's not immediately obvious, but [my_list_ind] is almost just [fold_right].
 Here's how we could implement [fold_right] in Coq, with a slightly different
 argument order than the same function in OCaml: *)
 
@@ -1110,11 +1114,11 @@ my_fold_right's body:
   | h::t => f h (my_fold_right init f t)
   end.
 
-my_list_rect's body:
+my_list_ind's body:
 
   match lst with
   | nil => baseCase
-  | h::t => inductiveCase h t (my_list_rect A P baseCase inductiveCase t)
+  | h::t => inductiveCase h t (my_list_ind A P baseCase inductiveCase t)
   end.
 >>
 
@@ -1130,9 +1134,9 @@ case for it, then working the way back up the call stack, assembling an
 ever-larger proof for each element of the list.  #<b>#An inductive proof is a
 recursive program.#</b>#
 
-Going back to the actual definition of [list_rect], here it is: *)
+Going back to the actual definition of [list_ind], here it is: *)
 
-Print list_rect.
+Print list_ind.
 
 (** Coq responds:
 <<
@@ -1151,7 +1155,7 @@ fix F (l : list A) : P l :=
 >>
 
 That uses different syntax, but it ends up defining the same function as
-[my_list_rect].
+[my_list_ind].
 
 Whenever you define an inductive type, Coq automatically generates the induction
 principle and recursive function that implements it for you. For example, we
