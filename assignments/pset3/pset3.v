@@ -1,5 +1,5 @@
 (**
-* PSet3: Induction in Coq
+* PSet3: Induction in Coq (240 points)
 *)
 
 Require Import List Arith.
