@@ -1230,7 +1230,7 @@ Proof.
   unfold fact_tail_rec.
   induction n.
   - simpl. trivial.
-  - simpl. rewrite fact_tail_rec_lem. simpl. rewrite IHn. ring.
+  - simpl. rewrite fact_tail_rec_lem. simpl. rewrite <- IHn. ring.
 Qed.
 
 (**

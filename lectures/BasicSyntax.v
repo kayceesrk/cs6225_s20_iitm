@@ -241,6 +241,31 @@ Module ArithWithVariables.
     simplify.
     linear_arithmetic.
   Qed.
+  
+  (* A stronger property about substitution. [<=] replaced by [<] *)
+  Theorem substitute_depth' : forall replaceThis withThis inThis,
+    depth (substitute inThis replaceThis withThis) < depth inThis + depth withThis.
+  Proof.
+    induct inThis.
+
+    simplify.
+    destruct withThis; simplify; try linear_arithmetic.
+
+    simplify.
+    cases (x ==v replaceThis).
+    (* [cases e]: break the proof into one case for each constructor that might have
+     *   been used to build the value of expression [e].  In the special case where
+     *   [e] essentially has a Boolean type, we consider whether [e] is true or false. *)
+    linear_arithmetic.
+    simplify.
+    destruct withThis; simplify; try linear_arithmetic.
+
+    simplify.
+    linear_arithmetic.
+
+    simplify.
+    linear_arithmetic.
+  Qed.
 
   (* Let's get fancier about automation, using [match goal] to pattern-match the goal
    * and decide what to do next!
