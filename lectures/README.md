@@ -19,7 +19,7 @@
   + LogicProgramming.v
 7. Transition Systems
   + TransitionSystems.v
-9. Operationa lSemantics
+9. OperationalSemantics
   + OperationalSemantics.v
 10. Lambda Calculus
   + LambdaCalculus.v
