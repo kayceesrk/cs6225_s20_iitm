@@ -30,6 +30,9 @@ Definition valuation := fmap var nat.
 (* That is, the domain is [var] (a synonym for [string]) and the codomain/range
  * is [nat]. *)
 
+Print fmap.
+
+
 (* The interpreter is a fairly innocuous-looking recursive function. *)
 Fixpoint interp (e : arith) (v : valuation) : nat :=
   match e with
@@ -71,6 +74,8 @@ Proof.
   equality.
 Qed.
 
+Compute interp ex2 valuation0.
+
 (* Here's the silly transformation we defined last time. *)
 Fixpoint commuter (e : arith) : arith :=
   match e with
@@ -94,9 +99,11 @@ Proof.
   equality.
 
   linear_arithmetic.
+  
+  linear_arithmetic.
 
-  equality.
-
+  try linear_arithmetic.
+  (* [linear_arithmetic] only handles multiplication by constants *)
   rewrite IHe1.
   rewrite IHe2.
   ring.
@@ -118,10 +125,11 @@ Theorem substitute_ok : forall v replaceThis withThis inThis,
   = interp inThis (v $+ (replaceThis, interp withThis v)).
 Proof.
   induct inThis; simplify; try equality.
+  
+  cases (x ==v replaceThis); simplify. equality. equality.
 
   (* One case left after our basic heuristic:
    * the variable case, naturally! *)
-  cases (x ==v replaceThis); simplify; try equality.
 Qed.
 (* Great; we seem to have gotten that one right, too. *)
 
@@ -148,6 +156,36 @@ Proof.
   cases e1; simplify; try equality.
   cases e2; simplify; equality.
 Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 (* Of course, we're going to get bored if we confine ourselves to arithmetic
  * expressions for the rest of our journey.  Let's get a bit fancier and define
@@ -204,6 +242,17 @@ Fixpoint compile (e : arith) : list instruction :=
   | Times e1 e2 => compile e1 ++ compile e2 ++ [Multiply]
   end.
 
+Print ex2.
+Print valuation0.
+Check interp_ex2.
+
+Theorem compile_run_ex2 : run (compile ex2) valuation0 [] = [54].
+Proof.
+  unfold valuation0.
+  simplify.
+  trivial.
+Qed.
+
 (* Now, of course, we should prove our compiler correct.
  * Skip down to the next theorem to see the overall correctness statement.
  * It turns out that we need to strengthen the induction hypothesis with a
@@ -245,22 +294,56 @@ Proof.
 Qed.
 
 (* The overall theorem follows as a simple corollary. *)
-Theorem compile_ok : forall e v, run (compile e) v nil = interp e v :: nil.
+Theorem compile_ok : forall e v, run (compile e) v [] = [interp e v].
 Proof.
   simplify.
+  (* Observe that [simplify] also does [intros] for us *)
 
   (* To match the form of our lemma, we need to replace [compile e] with
    * [compile e ++ nil], adding a "pointless" concatenation of the empty list.
    * [SearchRewrite] again helps us find a library lemma. *)
-  SearchRewrite (_ ++ nil).
+  SearchRewrite (_ ++ []).
+  Check (app_nil_end (compile e)).
   rewrite (app_nil_end (compile e)).
   (* Note that we can use [rewrite] with explicit values of the first few
    * quantified variables of a lemma.  Otherwise, [rewrite] picks an
    * unhelpful place to rewrite.  (Try it and see!) *)
 
-  apply compile_ok'.
+  (* apply compile_ok'. *)
+  rewrite compile_ok'.
   (* Direct appeal to a previously proved lemma *)
+  simplify.
+  equality.
 Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 (* Let's get a bit fancier, moving toward the level of general-purpose
@@ -325,6 +408,8 @@ Example factorial :=
     "output" <- "output" * "input";
     "input" <- "input" - 1
   done.
+  
+Check factorial.
 
 (* Now we prove that it really computes factorial.
  * First, a reference implementation as a functional program. *)
@@ -363,19 +448,17 @@ Proof.
   f_equal.
   linear_arithmetic.
 
-  trivial.
-  (* [trivial]: Coq maintains a database of simple proof steps, such as proving
-   *   a fact by direct appeal to a matching hypothesis.  [trivial] asks to try
-   *   all such simple steps. *)
+  equality.
 
   rewrite H, H0.
+  simplify.
   (* Note the two arguments to one [rewrite]! *)
   rewrite (IHinput (output * S input)).
   (* Note the careful choice of a quantifier instantiation for the IH! *)
   maps_equal.
-  f_equal; ring.
-  simplify; f_equal; linear_arithmetic.
-  simplify; equality.
+  f_equal. ring.
+  simplify. f_equal. linear_arithmetic.
+  simplify. equality.
 Qed.
 
 (* Finally, we have the natural correctness condition for factorial as a whole
@@ -391,6 +474,25 @@ Proof.
   trivial.
   trivial.
 Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 (* One last example: let's try to do loop unrolling, for constant iteration
