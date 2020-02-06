@@ -135,6 +135,9 @@ Restart.
   info_auto 6.
 Qed.
 
+
+(* <--------CS6225 STOPPED HERE--------> *)
+
 (* The two key components of logic programming are _backtracking_ and
  * _unification_.  To see these techniques in action, consider this further
  * silly example.  Here our candidate proof steps will be reflexivity and
