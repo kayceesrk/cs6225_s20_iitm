@@ -1,4 +1,4 @@
-(** CS6225 -- Problem Set 4b *)
+(** CS6225 -- Problem Set 4b (200 points) *)
 
 (** * 6.822 Formal Reasoning About Programs, Spring 2018 - Pset 2 *)
 
@@ -69,11 +69,13 @@ Module Type S.
    *)
   Axiom either_None_right : forall {A} (xo : option A),
     either xo None = xo.
+  (* 10 points *)
 
   (* [either] is associative, just like [++].
    *)
   Axiom either_assoc : forall {A} (xo yo zo : option A),
     either (either xo yo) zo = either xo (either yo zo).
+  (* 10 points *)
 
   (* [head] should compute the head of a list, that is,
    * it should return [Some] with the first element of
@@ -81,14 +83,17 @@ Module Type S.
    * if the list is empty.
    *)
   Parameter head : forall {A}, list A -> option A.
+  (* 10 points *)
 
   Axiom head_example : head [1; 2; 3] = Some 1.
+  (* 10 points *)
 
   (* The following theorem makes a formal connection
    * between [either] and [++].
    *)
   Axiom either_app_head : forall {A} (xs ys : list A),
       head (xs ++ ys) = either (head xs) (head ys).
+  (* 10 points *)
 
   (* [leftmost_Node] should compute the leftmost node of
    * a tree.
@@ -98,10 +103,12 @@ Module Type S.
    * without using the [flatten] operation.
    *)
   Parameter leftmost_Node : forall {A}, tree A -> option A.
+  (* 10 points *)
 
   Axiom leftmost_Node_example :
     leftmost_Node (Node (Node Leaf 2 (Node Leaf 3 Leaf)) 1 Leaf)
     = Some 2.
+  (* 10 points *)
 
   (* Prove that the leftmost node of the tree is the same
    * as the head of the list produced by flattening the tree
@@ -109,6 +116,7 @@ Module Type S.
    *)
   Axiom leftmost_Node_head : forall {A} (t : tree A),
       leftmost_Node t = head (flatten t).
+  (* 20 points *)
 
   (* Now let's work with the binary tries we defined earlier!
    *
@@ -121,18 +129,22 @@ Module Type S.
    * contains entries for those keys that begin with [false].
    *)
   Parameter lookup : forall {A}, list bool -> binary_trie A -> option A.
+  (* 10 points *)
 
   Axiom lookup_example1 : lookup [] (Node Leaf (None : option nat) Leaf) = None.
+  (* 10 points *)
 
   Axiom lookup_example2 : lookup [false; true]
     (Node (Node Leaf (Some 2) Leaf) None (Node (Node Leaf (Some 1) Leaf) (Some 3) Leaf))
                           = Some 1.
+  (* 10 points *)
 
   (* [Leaf] represents an empty binary trie, so a lookup for
    * any key should return [None].
    *)
   Axiom lookup_empty : forall {A} (k : list bool),
       lookup k (Leaf : binary_trie A) = None.
+  (* 10 points *)
 
   (* Define an operation to "insert" a key and optional value
    * into a binary trie. The [insert] definition should satisfy two
@@ -150,12 +162,15 @@ Module Type S.
    * a key and optional value into the empty trie.
    *)
   Parameter insert : forall {A}, list bool -> option A -> binary_trie A -> binary_trie A.
+  (* 20 points *)
 
   Axiom insert_example1 : lookup [] (insert [] None (Node Leaf (Some 0) Leaf)) = None.
   Axiom insert_example2 : lookup [] (insert [true] (Some 2) (Node Leaf (Some 0) Leaf)) = Some 0.
+  (* 10 points *)
 
   Axiom lookup_insert : forall {A} (k : list bool) (v : option A) (t : binary_trie A),
       lookup k (insert k v t) = v.
+  (* 40 points *)
 End S.
 
 (* The template file Pset4b.v also suggests an additional challenge problem,

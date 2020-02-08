@@ -1,4 +1,4 @@
-(** CS6225 -- Problem Set 4a *)
+(** CS6225 -- Problem Set 4a (100 points) *)
 
 (** * 6.822 Formal Reasoning About Programs, Spring 2018 - Pset 1 *)
 
@@ -51,27 +51,33 @@ Module Type S.
    * initial state is [n].
    *)
   Parameter run : Prog -> nat -> nat.
+  (* 10 points *)
 
   Axiom run_Example1 : run Done 0 = 0.
   Axiom run_Example2 : run (MulThen 5 (AddThen 2 Done)) 1 = 7.
   Axiom run_Example3 : run (SetToThen 3 (MulThen 2 Done)) 10 = 6.
+  (* 10 points *)
 
   (* Define [numInstructions] to compute the number of instructions
    * in a program, not counting [Done] as an instruction.
    *)
   Parameter numInstructions : Prog -> nat.
+  (* 10 points *)
 
   Axiom numInstructions_Example :
     numInstructions (MulThen 5 (AddThen 2 Done)) = 2.
+  (* 10 points *)
 
   (* Define [concatProg] such that [concatProg p1 p2] is the program
    * that first runs [p1] and then runs [p2].
    *)
   Parameter concatProg : Prog -> Prog -> Prog.
+  (* 10 points *)
 
   Axiom concatProg_Example :
      concatProg (AddThen 1 Done) (MulThen 2 Done)
    = AddThen 1 (MulThen 2 Done).
+  (* 10 points *)
 
   (* Prove that the number of instructions in the concatenation of
    * two programs is the sum of the number of instructions in each
@@ -80,6 +86,7 @@ Module Type S.
   Axiom concatProg_numInstructions : forall p1 p2,
       numInstructions (concatProg p1 p2)
       = numInstructions p1 + numInstructions p2.
+  (* 20 points *)
 
   (* Prove that running the concatenation of [p1] with [p2] is
      equivalent to running [p1] and then running [p2] on the
@@ -87,4 +94,5 @@ Module Type S.
   Axiom concatProg_run : forall p1 p2 initState,
       run (concatProg p1 p2) initState =
       run p2 (run p1 initState).
+  (* 20 points *)
 End S.
