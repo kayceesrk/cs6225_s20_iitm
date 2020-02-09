@@ -69,7 +69,7 @@ Theorem plusR_plus : forall n m r,
   plusR n m r
   -> r = n + m.
 Proof.
-  induct 1.
+  induct 1. 2: {
   (* [induct 1] instructs Coq to perform induction on the first hypothesis 
      of the theorem, which is [plusR n m r]. *) 
   simplify; linear_arithmetic.
@@ -143,6 +143,8 @@ Qed.
  * silly example.  Here our candidate proof steps will be reflexivity and
  * quantifier instantiation. *)
 
+Check ex_intro.
+
 Example seven_minus_three : exists x, x + 3 = 7.
 Proof.
   (* For explanatory purposes, let us simulate a user with minimal understanding
@@ -197,8 +199,11 @@ Proof.
    * run. *)
 
 Restart.
+  auto 6.
   info_eauto 6.
 Qed.
+
+Print seven_minus_three'.
 
 (* This proof gives us our first example where logic programming simplifies
  * proof search compared to functional programming.  In general, functional
@@ -233,6 +238,8 @@ Hint Immediate plus_O_n.
 
 (* The counterpart to [PlusS] we will prove ourselves. *)
 
+Print PlusS.
+
 Lemma plusS : forall n m r,
   n + m = r
   -> S n + m = S r.
@@ -252,7 +259,7 @@ Hint Resolve plusS.
 
 Example seven_minus_three'' : exists x, x + 3 = 7.
 Proof.
-  info_eauto 6.
+  debug eauto 6.
 Qed.
 
 Example seven_minus_four : exists x, 4 + x = 7.
@@ -354,6 +361,16 @@ Example needs_trans : forall x y, 1 + x = y
   -> exists z, z + x = 3.
 Proof.
   info_eauto with slow.
+Restart.
+  intro.
+intro.
+intro.
+intro.
+simple eapply ex_intro.
+ simple apply plusS.
+  simple eapply eq_trans.
+   exact H.
+   exact H0.
 Qed.
 
 (* The [info] trace shows that [eq_trans] was used in just the position where it
@@ -373,7 +390,7 @@ Print Datatypes.length.
 
 Example length_1_2 : length (1 :: 2 :: nil) = 2.
 Proof.
-  auto.
+  info_auto.
 Qed.
 
 Print length_1_2.
@@ -429,7 +446,7 @@ Abort.
  * the list further, so that proof search naturally locates appropriate data
  * elements by unification.  The library predicate [Forall] will be helpful. *)
 
-Print Forall.
+Check Forall.
 
 Example length_is_2 : exists ls : list nat, length ls = 2
   /\ Forall (fun n => n >= 0) ls.

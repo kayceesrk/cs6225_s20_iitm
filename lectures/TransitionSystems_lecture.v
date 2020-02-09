@@ -188,13 +188,29 @@ Lemma invariant_induction' : forall {state} (sys : trsys state)
      -> invariant s
      -> invariant s'.
 Proof.
-  induct 2; propositional.
+  induct 2.
+  propositional.
   (* [propositional]: simplify the goal according to the rules of propositional
    *   logic. *)
-
+   
+  intro.
   apply IHtrc.
+  
+  (* 1 *)
   eapply H.
   eassumption.
+  
+  (* or 2 *)
+  Undo 2.
+  apply H with (s:=x).
+  assumption.
+  
+  (* or 3 *)
+  Undo 2.
+  eapply H.
+  instantiate (1:=x).
+  assumption.
+  
   assumption.
 Qed.
 
