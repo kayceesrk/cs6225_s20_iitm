@@ -1,4 +1,4 @@
-(** CS6225 PSet5b (
+(** CS6225 PSet5b (500 points) *)
 
 (** * 6.822 Formal Reasoning About Programs, Spring 2018 - Pset 4 *)
 
