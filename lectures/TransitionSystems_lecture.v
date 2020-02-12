@@ -58,17 +58,34 @@ Inductive trc {A} (R : A -> A -> Prop) : A -> A -> Prop :=
 
 (* Ironically, this definition is not obviously transitive!
  * Let's prove transitivity as a lemma. *)
-Theorem trc_trans : forall {A} (R : A -> A -> Prop) x y, trc R x y
-  -> forall z, trc R y z
-    -> trc R x z.
+Theorem trc_trans : forall {A} (R : A -> A -> Prop) a b, trc R a b
+  -> forall c, trc R b c
+    -> trc R a c.
 Proof.
-  induct 1; simplify.
+  induct 1.
+  (* ## case (TrcRefl): 
+       + Unify [trc R a b] with [trc R x x] in [TrcRefl: forall x, trc R x x]; substitutions obtained are [x/a] and [x/b].
+       + For the conclusion, specialise [forall c, trc R b c -> trc R a c] by substituting [x/a] for [x/b]. You get:
+         - [forall c, trc R x c -> trc R x c], which becomes the conclusion.
+     ## case (TrcFront):
+       + Unify [trc R a b] with [trc R x z] in [TrcFront: forall x y z, R x y -> trc R y z -> trc R x z]; substitutions obtained are [x/a] and [z/b]. 
+       + Given that there are premises for [TrcFront], you get assumptions
+          - [H : R x y]
+          - [H0 : trc R y z]
+       + For the conclusion, substitute [x/a] and [z/b] in [forall c, trc R b c -> trc R a c] to get:
+         - [forall c. trc R z c -> trc R x c]. 
+       + Induction principle says that [trc_trans] should hold on [H0: trc R y z]. Hence, unify [trc R y z] with [trc R a b]; substitute [y/a] & [z/b] in [forall c, trc R b c -> trc R a c] to get: 
+         - [IHtrc: forall c, trc R z c -> trc R y c].
+   *)
+
+  simplify.
   (* Note how we pass a *number* to [induct], to ask for induction on
    * *the first hypothesis in the theorem statement*. *)
 
   assumption.
   (* [assumption]: prove a conclusion that matches some hypothesis exactly. *)
 
+  simplify.
   eapply TrcFront.
   (* [eapply H]: like [apply], but works when it is not obvious how to
    *   instantiate the quantifiers of theorem/hypothesis [H].  Instead,
@@ -86,6 +103,8 @@ Qed.
 
 (* Transitive-reflexive closure is so common that it deserves a shorthand notation! *)
 Notation "R ^*" := (trc R) (at level 0).
+
+
 
 (* Now let's use it to execute the factorial program. *)
 Example factorial_3 : fact_step^* (WithAccumulator 3 1) (AnswerIs 6).
@@ -114,6 +133,16 @@ Proof.
 
   (* Note that here [econstructor] is doing double duty, applying the rules of
    * both [trc] and [fact_step]. *)
+Qed.
+
+Hint Constructors trc : trans.
+Hint Constructors fact_init : trans.
+Hint Constructors fact_step : trans.
+Hint Constructors fact_final : trans.
+
+Example factorial_3_auto' : fact_step^* (WithAccumulator 3 1) (AnswerIs 6).
+Proof.
+  eauto with trans.
 Qed.
 
 (* It will be useful to give state machines more first-class status, as
@@ -153,11 +182,11 @@ Definition invariantFor {state} (sys : trsys state) (invariant : state -> Prop) 
 (* Here's a simple lemma to help us apply an invariant usefully,
  * really just restating the definition. *)
 Lemma use_invariant' : forall {state} (sys : trsys state)
-  (invariant : state -> Prop) s s',
+  (invariant : state -> Prop) st0 st,
   invariantFor sys invariant
-  -> sys.(Initial) s
-  -> sys.(Step)^* s s'
-  -> invariant s'.
+  -> sys.(Initial) st0
+  -> sys.(Step)^* st0 st
+  -> invariant st.
 Proof.
   unfold invariantFor.
   simplify.
@@ -166,11 +195,14 @@ Proof.
   assumption.
 Qed.
 
+
+
+(* connects invariants and reachability: R \subseteq I *)
 Theorem use_invariant : forall {state} (sys : trsys state)
-  (invariant : state -> Prop) s,
+  (invariant : state -> Prop) st,
   invariantFor sys invariant
-  -> reachable sys s
-  -> invariant s.
+  -> reachable sys st
+  -> invariant st.
 Proof.
   simplify.
   invert H0.
@@ -199,6 +231,8 @@ Proof.
   (* 1 *)
   eapply H.
   eassumption.
+  (* What is there were multiple possible matches for the conclusion?
+     How do we specify which one to pick? *)
   
   (* or 2 *)
   Undo 2.
@@ -282,7 +316,8 @@ Proof.
   assumption.
 Qed.
 
-(* Therefore, any final state has the right answer! *)
+(* Therefore, any final state has the right answer! This connects the invariant
+   and the final answer. *)
 Lemma fact_ok' : forall original_input s,
   fact_final s
   -> fact_invariant original_input s
@@ -290,7 +325,10 @@ Lemma fact_ok' : forall original_input s,
 Proof.
   invert 1; simplify; equality.
 Qed.
+(* Says nothing about how we reached the final state. *)
 
+(* Therefore, all reachable final states for a given [original_input]
+   has the right answer! *)
 Theorem fact_ok : forall original_input s,
   reachable (factorial_sys original_input) s
   -> fact_final s
@@ -384,7 +422,7 @@ Definition increment_sys := {|
  * system the type of shared state remains the same, we take the Cartesian
  * product of the sets of private state. *)
 
-Inductive parallel_init shared private1 private2
+Inductive parallel_init (shared private1 private2 : Type)
   (init1 : threaded_state shared private1 -> Prop)
   (init2 : threaded_state shared private2 -> Prop)
   : threaded_state shared (private1 * private2) -> Prop :=
@@ -393,7 +431,7 @@ Inductive parallel_init shared private1 private2
   -> init2 {| Shared := sh; Private := pr2 |}
   -> parallel_init init1 init2 {| Shared := sh; Private := (pr1, pr2) |}.
 
-Inductive parallel_step shared private1 private2
+Inductive parallel_step (shared private1 private2 : Type)
           (step1 : threaded_state shared private1 -> threaded_state shared private1 -> Prop)
           (step2 : threaded_state shared private2 -> threaded_state shared private2 -> Prop)
           : threaded_state shared (private1 * private2)
@@ -408,8 +446,9 @@ Inductive parallel_step shared private1 private2
   step2 {| Shared := sh; Private := pr2 |} {| Shared := sh'; Private := pr2' |}
   -> parallel_step step1 step2 {| Shared := sh; Private := (pr1, pr2) |}
                {| Shared := sh'; Private := (pr1, pr2') |}.
+               
 
-Definition parallel shared private1 private2
+Definition parallel (shared private1 private2 : Type)
            (sys1 : trsys (threaded_state shared private1))
            (sys2 : trsys (threaded_state shared private2)) := {|
   Initial := parallel_init sys1.(Initial) sys2.(Initial);
@@ -481,6 +520,7 @@ Theorem increment2_invariant_ok : invariantFor increment2_sys increment2_invaria
 Proof.
   apply invariant_induction; simplify.
 
+  (* base case *)
   invert H.
   invert H0.
   invert H1.
@@ -496,6 +536,7 @@ Proof.
   simplify.
   propositional.
 
+  (* inductive case *)
   invert H.
   invert H0.
 

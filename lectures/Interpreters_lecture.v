@@ -453,6 +453,7 @@ Proof.
   rewrite H, H0.
   simplify.
   (* Note the two arguments to one [rewrite]! *)
+  Check IHinput.
   rewrite (IHinput (output * S input)).
   (* Note the careful choice of a quantifier instantiation for the IH! *)
   maps_equal.
