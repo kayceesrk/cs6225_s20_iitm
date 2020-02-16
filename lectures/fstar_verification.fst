@@ -202,3 +202,51 @@ val rev_injective : #a:Type -> l1:list a -> l2:list a
 let rec rev_injective (#a:Type) l1 l2 = 
   rev_involutive l1; rev_involutive l2
   //Use the fact that every involutive function is injective
+  
+(******************************************************************************)
+
+(** Insertion Sort
+
+    Let us implement and verify an insertion sort algorithm.
+*)
+
+val sorted: list int -> Tot bool
+let rec sorted l = match l with
+    | [] -> true
+    | [x] -> true
+    | x::y::xs -> (x <= y) && (sorted (y::xs))
+
+val meml: int -> list int -> Tot bool
+let rec meml a l = match l with
+  | [] -> false
+  | hd::tl -> hd=a || meml a tl
+
+val sorted_smaller:
+  x:int ->
+  xs:list int ->
+  m:int ->
+  Lemma (requires (sorted (x::xs) /\ mem m xs))
+        (ensures (x <= m))
+        (* [SMTPat (sorted (x::xs)); SMTPat (mem m xs)] *)
+let rec sorted_smaller x xs m = match xs with
+    | [] -> ()
+    | y::ys -> if y=m then () else sorted_smaller x ys m
+
+val insert_sorted : 
+  a:int -> 
+  l:list int{sorted l} -> 
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+       (* Solver implicitly uses the lemma: sorted_smaller x xs a *)
+       x::(insert_sorted a xs)
+
+(* Insertion sort *)
+val sort : l:list int -> Tot (m:list int{sorted m /\ (forall x. mem x l == mem x m)})
+let rec sort l = match l with
+    | [] -> []
+    | x::xs -> insert_sorted x (sort xs)

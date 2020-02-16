@@ -162,6 +162,9 @@ Definition factorial_sys (original_input : nat) : trsys fact_state := {|
   Step := fact_step
 |}.
 
+Check fact_init.
+Check fact_step.
+
 (* A useful general notion for transition systems: reachable states *)
 Inductive reachable {state} (sys : trsys state) (st : state) : Prop :=
 | Reachable : forall st0,
@@ -276,7 +279,7 @@ Definition fact_invariant (original_input : nat) (st : fact_state) : Prop :=
 Theorem fact_invariant_ok : forall original_input,
   invariantFor (factorial_sys original_input) (fact_invariant original_input).
 Proof.
-  simplify.
+  intros.
   apply invariant_induction; simplify.
 
   (* Step 1: invariant holds at the start. (base case) *)
@@ -539,10 +542,14 @@ Proof.
   (* inductive case *)
   invert H.
   invert H0.
+  
+  (* First(second) goal corresponds to thread 1(2) taking a step *)
 
-  invert H6; simplify.
+  invert H6; simplify. 
+  (* Thread 1 can be in one of 4 states before taking a step. *)
 
   cases pr2; simplify.
+  (* What are the possibilities for thread 2 in those states *)
 
   apply Inc2Inv'; unfold shared_from_private; simplify.
   equality.
