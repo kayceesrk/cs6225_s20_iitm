@@ -449,7 +449,6 @@ Inductive parallel_step (shared private1 private2 : Type)
   step2 {| Shared := sh; Private := pr2 |} {| Shared := sh'; Private := pr2' |}
   -> parallel_step step1 step2 {| Shared := sh; Private := (pr1, pr2) |}
                {| Shared := sh'; Private := (pr1, pr2') |}.
-               
 
 Definition parallel (shared private1 private2 : Type)
            (sys1 : trsys (threaded_state shared private1))
@@ -505,6 +504,8 @@ Inductive increment2_invariant :
   instruction_ok pr1 pr2
   -> instruction_ok pr2 pr1
   -> increment2_invariant {| Shared := shared_from_private pr1 pr2; Private := (pr1, pr2) |}.
+  
+Check threaded_state.
 
 (** It's convenient to prove this alternative equality-based "constructor" for the invariant. *)
 Lemma Inc2Inv' : forall sh pr1 pr2,
