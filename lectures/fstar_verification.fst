@@ -3,7 +3,7 @@ module Fstar_verification
 open FStar.Mul
 
 (** There are two approaches to verification in F*
-    
+
     (1) Intrinsically at definition time
     (2) Extrinsically through SMT-backed lemmas
 
@@ -11,7 +11,7 @@ open FStar.Mul
 *)
 
 val factorial : nat -> Tot nat              (* type nat = x:int{x >= 0} *)
-let rec factorial n = 
+let rec factorial n =
   if n = 0 then 1 else n * factorial (n-1)
 
 (* We can also equivalently write pre- and post-conditions for this *)
@@ -39,7 +39,7 @@ let rec factorial3 n =
 
 (******************************************************************************)
 
-(** A high-level view of types in F* 
+(** A high-level view of types in F*
 
     You can view types in F* as belonging to two "kinds"
 
@@ -52,8 +52,8 @@ let rec factorial3 n =
     * Refined computation types
       + Pure t pre post
       + Div t pre post
-      
-    Dependent functions are of the form 
+
+    Dependent functions are of the form
 
     [x0:t0 -> ... -> xn:tn{x1...xn-1} -> C ]
 
@@ -66,7 +66,7 @@ let rec factorial3 n =
 (* Intrinsically verifying append *)
 
 val length : list 'a -> Tot nat
-let rec length l = 
+let rec length l =
   match l with
   | [] -> 0
   | _::ls -> length ls + 1
@@ -79,7 +79,7 @@ let rec append l1 l2 =
 
 (******************************************************************************)
 
-(* Extrinsically verifying append 
+(* Extrinsically verifying append
 
    We can under specify the type of [append] and verify the fact about length as
    a separate lemma.
@@ -92,9 +92,9 @@ let rec append2 l1 l2 =
   | [] -> l2
   | x::xs -> x::(append2 xs l2)
 
-val append_len : 
-  l1:list 'a -> l2:list 'a -> 
-  Pure unit (requires True) 
+val append_len :
+  l1:list 'a -> l2:list 'a ->
+  Pure unit (requires True)
             (ensures (fun _ -> length (append2 l1 l2) = length l1 + length l2))
 let rec append_len l1 l2 =
   match l1 with
@@ -127,8 +127,8 @@ let rec append_len2 (l1 l2 : list 'a) :
 
 let snoc l h = l @ [h]
 
-(* [#a] is an implicit argument for the [rev] function. You don't need to 
-   specify it explicitly when calling the function. But can be optionally 
+(* [#a] is an implicit argument for the [rev] function. You don't need to
+   specify it explicitly when calling the function. But can be optionally
    added. *)
 val rev: #a:Type -> list a -> Tot (list a)
 let rec rev (#a:Type) l =
@@ -172,7 +172,7 @@ let rec rev_involutive (#a:Type) l =
 
 (******************************************************************************)
 
-(** More verification 
+(** More verification
 
     Let's define membership on list. Unlike OCaml, F* doesn't provide equality
     on every type. This is because not all types have decidable equality. So in
@@ -191,7 +191,7 @@ val append_mem:  #a:eqtype -> l1:list a -> l2:list a -> x:a
 let rec append_mem (#a:eqtype) l1 l2 x =
   match l1 with
   | [] -> ()
-  | hd::tl -> append_mem tl l2 x 
+  | hd::tl -> append_mem tl l2 x
   // mem x (hd::(append tl l2)) <==> hd=x || mem x tl || mem x l2.
 
 (* [rev] is injective *)
@@ -199,10 +199,26 @@ let rec append_mem (#a:eqtype) l1 l2 x =
 val rev_injective : #a:Type -> l1:list a -> l2:list a
                 -> Lemma (requires (rev l1 == rev l2))
                          (ensures  (l1 == l2))
-let rec rev_injective (#a:Type) l1 l2 = 
+let rec rev_injective (#a:Type) l1 l2 =
   rev_involutive l1; rev_involutive l2
   //Use the fact that every involutive function is injective
-  
+
+(******************************************************************************)
+
+(** Tail recursive factorial *)
+
+val fact_tail_rec' : n:nat -> acc:nat -> r:nat{r = factorial n * acc}
+let rec fact_tail_rec' n acc =
+  if n = 0 then acc
+  else fact_tail_rec' (n-1) (n * acc)
+
+let fact_tail_rec n = fact_tail_rec' n 1
+
+val fact_same : n:nat -> Lemma (ensures (factorial n = fact_tail_rec n))
+let rec fact_same n =
+  if n = 0 then ()
+  else fact_same (n-1)
+
 (******************************************************************************)
 
 (** Insertion Sort
@@ -227,14 +243,14 @@ val sorted_smaller:
   m:int ->
   Lemma (requires (sorted (x::xs) /\ mem m xs))
         (ensures (x <= m))
-        (* [SMTPat (sorted (x::xs)); SMTPat (mem m xs)] *)
+        [SMTPat (sorted (x::xs)); SMTPat (mem m xs)]
 let rec sorted_smaller x xs m = match xs with
     | [] -> ()
     | y::ys -> if y=m then () else sorted_smaller x ys m
 
-val insert_sorted : 
-  a:int -> 
-  l:list int{sorted l} -> 
+val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
   Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
 let rec insert_sorted a l = match l with
   | [] -> [a]
@@ -250,3 +266,76 @@ val sort : l:list int -> Tot (m:list int{sorted m /\ (forall x. mem x l == mem x
 let rec sort l = match l with
     | [] -> []
     | x::xs -> insert_sorted x (sort xs)
+
+(*****************************************************************************)
+
+(** Swivel *)
+
+type tree =
+  | Leaf : tree
+  | Node : n:int -> tree -> tree -> tree
+
+val rightmost : tr:tree -> Tot (option int)
+let rec rightmost tr =
+  match tr with
+  | Leaf -> None
+  | Node v _ rt ->
+    match rt with
+    | Leaf -> Some v
+    | _ -> rightmost rt
+
+val leftmost : tr:tree -> Tot (option int)
+let rec leftmost tr =
+  match tr with
+  | Leaf -> None
+  | Node v lt _ ->
+    match lt with
+  | Leaf -> Some v
+  | _ -> leftmost lt
+
+(*
+
+val swivel : tr:tree -> r:tree{rightmost tr = leftmost r}
+let rec swivel tr =
+  match tr with
+  | Leaf -> Leaf
+  | Node v lt rt ->
+      let ih1 = rightmost lt = leftmost (swivel lt) in
+      let ih2 = rightmost rt = leftmost (swivel rt) in
+      assert (ih1);
+      assert (ih2);
+      assert (ih2 ==>  rightmost tr = leftmost (Node v (swivel rt) (swivel lt)));
+      Node v (swivel rt) (swivel lt)
+
+
+
+
+
+
+
+
+
+
+   (* assert (root rt = root (swivel rt));
+
+      does not hold *)
+*)
+
+val root : tr:tree -> Tot (option int)
+let root tr = match tr with
+  | Leaf -> None
+  | Node v _ _ -> Some v
+
+val swivel2 :
+  tr:tree ->
+  r:tree{rightmost tr = leftmost r /\ root tr = root r}
+let rec swivel2 tr =
+  match tr with
+  | Leaf -> Leaf
+  | Node v lt rt ->
+      let ih1 = rightmost lt = leftmost (swivel2 lt) in
+      let ih2 = rightmost rt = leftmost (swivel2 rt) in
+      assert (ih1);
+      assert (ih2);
+      assert (rightmost tr = leftmost (Node v (swivel2 rt) (swivel2 lt)));
+      Node v (swivel2 rt) (swivel2 lt)

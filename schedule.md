@@ -13,7 +13,7 @@ permalink: /schedule/
 | 5 | BasicSyntax | 29/01, 30/01 | [Coq]({{site.baseurl}}/lectures/BasicSyntax.v) | |
 | 6 | Interpreters | 03/02, 04,02, 05/02 | [Coq]({{site.baseurl}}/lectures/Interpreters.v) | |
 | 7 | Logic Programming | 05/02, 06/02  | [Coq]({{site.baseurl}}/lectures/LogicProgramming.v) | |
-| 8 | Transition Systems | 10/2 + tutorial, 11/2, 12/2, 13/2 | [Coq]({{site.baseurl}}/lectures/TransitionSystems.v) | |
+| 8 | Transition Systems | 10/2 + tutorial, 11/2, 12/2, 13/2, 17/2 + tutorial, 18/2 | [Coq]({{site.baseurl}}/lectures/TransitionSystems.v) | |
 | 9 | Operational Semantics | | [Coq]({{site.baseurl}}/lectures/OperationalSemantics.v) | |
 | 10 | Lambda Calculus | | [Coq]({{site.baseurl}}/lectures/LambdaCalculus.v) | |
 | 11 | Hoare Logic | | [Coq]({{site.baseurl}}/lectures/HoareLogic.v) | |
