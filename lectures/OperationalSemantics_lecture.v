@@ -47,6 +47,7 @@ Example factorial :=
     "output" <- "output" * "input";;
     "input" <- "input" - 1
   done.
+  
 
 (* Recall our use of a recursive function to interpret expressions. *)
 Definition valuation := fmap var nat.
@@ -101,21 +102,27 @@ Proof.
   eexists; propositional.
   (* [eexists]: to prove [exists x, P(x)], switch to proving [P(?y)], for a new
    *   existential variable [?y]. *)
-
+  
+  unfold factorial.
   econstructor.
   econstructor.
+  simplify.
   econstructor.
   simplify.
   equality.
   econstructor.
   econstructor.
+  simplify.
   econstructor.
+  simplify.
   econstructor.
   simplify.
   equality.
   econstructor.
   econstructor.
+  simplify.
   econstructor.
+  simplify.
   apply EvalWhileFalse.
   (* Note that, for this step, we had to specify which rule to use, since
    * otherwise [econstructor] incorrectly guesses [EvalWhileTrue]. *)
@@ -174,6 +181,7 @@ Proof.
   induct n; simplify.
 
   exists v; propositional.
+  unfold factorial_loop.
   apply EvalWhileFalse.
   simplify.
   rewrite H.
@@ -181,10 +189,11 @@ Proof.
   rewrite H0.
   f_equal.
   ring.
-  
+
   (* [assert P]: first prove proposition [P], then continue with it as a new
    *   hypothesis. *)
-  assert (exists v', eval (v $+ ("output", out * S n) $+ ("input", n)) factorial_loop v'
+  assert (exists v', eval (v $+ ("output", out * S n) 
+                             $+ ("input", n)) factorial_loop v'
                      /\ v' $? "output" = Some (fact n * (out * S n))).
   apply IHn.
   simplify; equality.
@@ -192,6 +201,9 @@ Proof.
   (* [first_order]: simplify first-order logic structure.  Be forewarned: this
    *   one is especially likely to run forever! *)
   first_order.
+ 
+
+
   eexists; propositional.
   econstructor.
   simplify.
@@ -205,6 +217,10 @@ Proof.
   replace (S n - 1) with n by linear_arithmetic.
   (* [replace e1 with e2 by tac]: replace occurrences of [e1] with [e2], proving
    *   [e2 = e1] with tactic [tac]. *)
+
+
+
+
   apply H1.
   rewrite H2.
   f_equal.
@@ -222,10 +238,15 @@ Proof.
   simplify; equality.
   simplify; equality.
   first_order.
+  
+  
   eexists; propositional.
+  unfold factorial.
   econstructor.
   econstructor.
   simplify.
+  
+  
   apply H0.
   rewrite H1.
   f_equal.
@@ -268,47 +289,47 @@ Theorem factorial_2_small : exists v, step^* ($0 $+ ("input", 2), factorial) (v,
 Proof.
   eexists; propositional.
 
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  apply StepSeq2.
-  econstructor.
-  econstructor.
-  simplify.
+  econstructor; simplify.
+  unfold factorial.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  apply StepSeq2; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
   equality.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  apply StepSeq2.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  apply StepSeq2.
-  econstructor.
-  econstructor.
-  simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  apply StepSeq2; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  apply StepSeq2; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  simplify; simplify.
   equality.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  apply StepSeq2.
-  econstructor.
-  econstructor.
-  econstructor.
-  econstructor.
-  apply StepSeq2.
-  econstructor.
-  apply StepWhileFalse.
-  simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  apply StepSeq2; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  econstructor; simplify.
+  apply StepSeq2; simplify.
+  econstructor; simplify.
+  apply StepWhileFalse; simplify.
   equality.
+  
   econstructor.
   
   simplify.
@@ -341,10 +362,12 @@ Lemma step_star_Seq : forall v c1 c2 v' c1',
   -> step^* (v, Sequence c1 c2) (v', Sequence c1' c2).
 Proof.
   induct 1.
-
+  
   constructor.
+  (* TrcRefl *)
 
   cases y.
+  (* curious use of [cases] tactic. *)
   econstructor.
   econstructor.
   eassumption.
@@ -359,14 +382,18 @@ Proof.
   induct 1; simplify.
 
   constructor.
+  (* same as [apply TrcRefl] *)
 
   econstructor.
+  (* same as [apply TrcFront] *)
   constructor.
   constructor.
+  (* same as [apply TrcRefl] *)
 
   Check trc_trans.
   eapply trc_trans.
   apply step_star_Seq.
+  (* clever combination of [trc_trans] and [step_star_Seq] *)
   eassumption.
   econstructor.
   apply StepSeq2.
@@ -387,6 +414,7 @@ Proof.
   assumption.
   eapply trc_trans.
   apply step_star_Seq.
+  (* another one *)
   eassumption.
   econstructor.
   apply StepSeq2.
@@ -445,6 +473,7 @@ Proof.
   trivial.
 
   cases y.
+  (* Use cases to expose the fact that [y] is a pair of values *)
   eapply small_big''.
   eassumption.
   eapply IHtrc.
@@ -524,11 +553,11 @@ Theorem simple_invariant :
                (fun s => snd s = Skip -> fst s $? "c" = Some 4).
 Proof.
   model_check.
+  (* Not covered in this course, but available in the book. 
+     It is a way of automatically coming up with the strongest inductive 
+     invariant for **finite** transition systems (reachable states are finite), 
+     then using it to prove weaker invariants *)
 Qed.
-
-Inductive isEven : nat -> Prop :=
-| EvenO : isEven 0
-| EvenSS : forall n, isEven n -> isEven (S (S n)).
 
 Definition my_loop :=
   while "n" loop
@@ -536,41 +565,21 @@ Definition my_loop :=
     "n" <- "n" - 2
   done.
 
-Definition all_programs := {
-  (while "n" loop
-     "a" <- "a" + "n";;
-     "n" <- "n" - 2
-   done),
-  ("a" <- "a" + "n";;
-   "n" <- "n" - 2),
-  (Skip;;
-   "n" <- "n" - 2),
-  ("n" <- "n" - 2),
-  (("a" <- "a" + "n";;
-    "n" <- "n" - 2);;
-   while "n" loop
-     "a" <- "a" + "n";;
-     "n" <- "n" - 2
-   done),
-  ((Skip;;
-    "n" <- "n" - 2);;
-   while "n" loop
-     "a" <- "a" + "n";;
-     "n" <- "n" - 2
-   done),
-  ("n" <- "n" - 2;;
-   while "n" loop
-     "a" <- "a" + "n";;
-     "n" <- "n" - 2
-   done),
-  (Skip;;
-   while "n" loop
-     "a" <- "a" + "n";;
-     "n" <- "n" - 2
-   done),
-  Skip
-}.
+(* For the above program, initially, if [n] is even, then [a] stays 
+   even during execution. 
 
+   This invariant cannot be model checked since [n] can be an arbitrary 
+   natural number and hence, the reachable states are **infinite**. We
+   can prove manually that [a] is always even. *)
+
+
+(* First, the definition of evenness. *)
+
+Inductive isEven : nat -> Prop :=
+| EvenO : isEven 0
+| EvenSS : forall n, isEven n -> isEven (S (S n)).
+
+(* Some facts about even *)
 Lemma isEven_minus2 : forall n, isEven n -> isEven (n - 2).
 Proof.
   induct 1; simplify.
@@ -595,6 +604,51 @@ Proof.
   assumption.
 Qed.
 
+Definition all_programs := {
+  (while "n" loop
+     "a" <- "a" + "n";;
+     "n" <- "n" - 2
+   done),
+   
+   ("a" <- "a" + "n";;
+   "n" <- "n" - 2),
+   
+  (Skip;;
+   "n" <- "n" - 2),
+   
+  ("n" <- "n" - 2),
+  
+  (("a" <- "a" + "n";;
+    "n" <- "n" - 2);;
+   while "n" loop
+     "a" <- "a" + "n";;
+     "n" <- "n" - 2
+   done),
+   
+  ((Skip;;
+    "n" <- "n" - 2);;
+   while "n" loop
+     "a" <- "a" + "n";;
+     "n" <- "n" - 2
+   done),
+   
+  ("n" <- "n" - 2;;
+   while "n" loop
+     "a" <- "a" + "n";;
+     "n" <- "n" - 2
+   done),
+   
+  (Skip;;
+   while "n" loop
+     "a" <- "a" + "n";;
+     "n" <- "n" - 2
+   done),
+   
+  Skip
+}.
+
+Check all_programs.
+
 Lemma manually_proved_invariant' : forall n,
   isEven n
   -> invariantFor (trsys_of ($0 $+ ("n", n) $+ ("a", 0)) (while "n" loop "a" <- "a" + "n";; "n" <- "n" - 2 done))
@@ -607,11 +661,17 @@ Proof.
   simplify.
   apply invariant_induction; simplify.
 
-  first_order.
+  propositional.
   unfold all_programs.
   subst; simplify; equality.
+  (* [subst] performs all possible rewrites and clears the hypothesis 
+     used for substitutions. *)
   subst; simplify.
   exists n, 0.
+  (* substitute for existentially quantified variables. The above tactic
+     is equivalent to.
+     
+     [eexists. eexists. instantitate (1:=0). instantiate (1:=n)] *)
   propositional.
   constructor.
 
@@ -634,56 +694,72 @@ Proof.
   unfold all_programs in *; simplify; propositional; try equality.
   invert H2.
   invert H5; equality.
+  
   invert H2.
   invert H5.
   rewrite H0, H3; simplify.
-  eexists; eexists.
+  do 2 eexists.
   propositional; try eassumption.
   apply isEven_plus; assumption.
+  
   invert H1.
   invert H5.
   invert H1.
   invert H5.
+  
   invert H1.
   invert H5.
   invert H2.
   equality.
+  
   invert H1.
   invert H5.
   invert H2.
   rewrite H0, H3; simplify.
   eexists; eexists; propositional; try eassumption.
   apply isEven_plus; assumption.
+  
   invert H2.
   invert H5.
   invert H2.
   equality.
+  
   invert H2.
   invert H5.
   invert H2.
   eexists; eexists; propositional; eassumption.
+  
   invert H1.
   invert H5.
   equality.
+  
   invert H1.
   invert H5.
   rewrite H0; simplify.
   do 2 eexists; propositional; try eassumption.
   apply isEven_minus2; assumption.
+  
   invert H2.
   invert H5.
+  
   invert H2.
   invert H5.
+  
   unfold all_programs in *; simplify; propositional; try equality.
   invert H1.
   do 2 eexists; propositional; try eassumption.
+  
   invert H2.
   do 2 eexists; propositional; try eassumption.
+  
   unfold all_programs in *; simplify; propositional; equality.
+  
   unfold all_programs in *; simplify; propositional; equality.
+  
   unfold all_programs in *; simplify; propositional; try equality.
   invert H1.
   do 2 eexists; propositional; try eassumption.
+  
   unfold all_programs in *; simplify; propositional; try equality.
   invert H1.
   do 2 eexists; propositional; try eassumption.
