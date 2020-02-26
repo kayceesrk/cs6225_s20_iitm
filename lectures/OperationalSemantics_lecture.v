@@ -289,6 +289,7 @@ Theorem factorial_2_small : exists v, step^* ($0 $+ ("input", 2), factorial) (v,
 Proof.
   eexists; propositional.
 
+  Print trc.
   econstructor; simplify.
   unfold factorial.
   econstructor; simplify.
@@ -366,10 +367,11 @@ Proof.
   constructor.
   (* TrcRefl *)
 
-  cases y.
+    cases y.
   (* curious use of [cases] tactic. *)
   econstructor.
   econstructor.
+
   eassumption.
   apply IHtrc.
   equality.
