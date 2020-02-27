@@ -208,10 +208,8 @@ Definition increment2_sys := parallel (increment_sys false) (increment_sys true)
  * Invariant 1
  ****************************************************************************)
 
-(* "At the start of the program, [Turn] is false" is an invariant. This
- * invariant can be proved by starting the proof with
- * [apply invariant_induction; unfold increment2_init_turn_inv; simplify.]
- * and following up with [invert]s on the inductive hypotheses. *)
+(* "At the start of the program, [Turn] is false" is an invariant. This can be
+* directly proved without having to apply [invariant_induction]. *)
 Definition increment2_init_turn_inv (s : threaded_state inc_state (increment_program * increment_program)) :=
   s.(Private) = (SetFlag, SetFlag) -> s.(Shared).(Turn) = false.
 
