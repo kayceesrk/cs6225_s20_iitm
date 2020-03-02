@@ -429,8 +429,8 @@ Proof.
 Qed.
 
 Lemma small_big'' : forall v c v' c', step (v, c) (v', c')
-                                      -> forall v'', eval v' c' v''
-                                                     -> eval v c v''.
+   -> forall v'', eval v' c' v''
+   -> eval v c v''.
 Proof.
   induct 1; simplify.
 
@@ -467,8 +467,8 @@ Proof.
 Qed.
 
 Lemma small_big' : forall v c v' c', step^* (v, c) (v', c')
-                                     -> forall v'', eval v' c' v''
-                                                    -> eval v c v''.
+    -> forall v'', eval v' c' v''
+    -> eval v c v''.
 Proof.
   induct 1; simplify.
 
@@ -485,7 +485,7 @@ Proof.
 Qed.
 
 Theorem small_big : forall v c v', step^* (v, c) (v', Skip)
-                                   -> eval v c v'.
+  -> eval v c v'.
 Proof.
   simplify.
   eapply small_big'.
@@ -587,6 +587,7 @@ Proof.
   induct 1; simplify.
 
   constructor.
+  
 
   replace (n - 0) with n by linear_arithmetic.
   assumption.
@@ -665,6 +666,7 @@ Proof.
 
   propositional.
   unfold all_programs.
+  subst.
   subst; simplify; equality.
   (* [subst] performs all possible rewrites and clears the hypothesis 
      used for substitutions. *)
@@ -914,10 +916,10 @@ Proof.
 Qed.
 
 Lemma cstep_step' : forall C c0 c,
-  plug C c0 c
-  -> forall v' c'0 v c', step0 (v, c0) (v', c'0)
-  -> plug C c'0 c'
-  -> step (v, c) (v', c').
+  plug C c0 c (* C[c0] = c *)
+  -> forall v' c'0 v c', step0 (v, c0) (v', c'0) (* (v,c0) ->0 (v',c'0) *)
+  -> plug C c'0 c' (* C[C'0] = c' *)
+  -> step (v, c) (v', c'). (* (v,c) -> (v',c') *)
 Proof.
   induct 1; simplify.
 
@@ -926,7 +928,7 @@ Proof.
   assumption.
 
   invert H1.
-  econstructor.
+  econstructor. (* appeal to the congruence rule in [step] *)
   eapply IHplug.
   eassumption.
   assumption.
