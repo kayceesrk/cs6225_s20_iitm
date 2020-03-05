@@ -38,7 +38,7 @@ Inductive arith : Set :=
 | Eq : arith -> arith -> arith
 (* should return 1 if the two expressions are equal, and 0 otherwise. *)
 | Lt : arith -> arith -> arith
-(* should return 1 if the two expressions are equal, and 0 otherwise. *)
+(* should return 1 if the first expression is less than then second, and 0 otherwise. *)
 .
 
 (* The simple imperative language with a [Choose] syntax for
@@ -138,6 +138,7 @@ Fixpoint interp (e : arith) (v : valuation) : nat :=
 Definition result : Type.
 Admitted.
 
+(* 5 points *)
 Definition eval : valuation -> cmd -> result -> Prop.
 Admitted.
 
@@ -148,11 +149,13 @@ Admitted.
  * for the example program:
  *)
 
+(* 5 points *)
 Example test_prog1_reachable :
   exists res, eval $0 (test_prog1 5) res /\ big_aborted res.
 Proof.
 Admitted.
 
+(* 5 points *)
 Example test_prog1_unreachable :
   forall res, eval $0 (test_prog1 6) res -> big_aborted res -> False.
 Proof.
@@ -200,6 +203,7 @@ Admitted.
 Definition state : Type.
 Admitted.
 
+(* 5 points *)
 Definition step : state -> state -> Prop.
 Admitted.
 
@@ -216,12 +220,14 @@ Admitted.
  * for the example program:
  *)
 
+(* 5 points *)
 Example test_prog1_reachable_small :
   exists st, step^* (init $0 (test_prog1 5)) st /\ small_aborted st.
 Proof.
 Admitted.
 
 
+(* 5 points *)
 Example test_prog1_unreachable_small :
   forall st, step^* (init $0 (test_prog1 6)) st -> small_aborted st -> False.
 Proof.
@@ -229,6 +235,7 @@ Admitted.
 
 (** ** Part 3: A lemma on big step semantics *)
 
+(* 10 points *)
 Lemma lem: forall c1 c2 c3 v res,
   eval v (c1;;(c2;;c3))%cmd res ->
   eval v ((c1;;c2);;c3)%cmd res.
@@ -244,7 +251,8 @@ Admitted.
  * potentially abort.
  *)
 
- Theorem small_abort_big_may_abort : forall v c s,
+(* 40 points *)
+Theorem small_abort_big_may_abort : forall v c s,
          step^* (init v c) s
       -> small_aborted s
       -> exists res, eval v c res /\ big_aborted res.
