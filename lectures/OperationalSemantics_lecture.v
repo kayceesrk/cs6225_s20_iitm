@@ -1001,8 +1001,10 @@ Theorem eval_det : forall v c v1,
   -> forall v2, eval v c v2
   -> v1 = v2.
 Proof.
+  (* induct 1. 3: { intro. intro. invert' H1. apply IHeval2. apply IHeval1 in H5. subst. assumption. } intro. intro. invert H. equality. intro.  intro. invert H. equality. intro. intro. invert H1. firstorder. firstorder. *)
   induct 1; invert 1; try first_order.
-
+  (* [invert 1] is new *)
+  
   apply IHeval2.
   apply IHeval1 in H5.
   subst.
@@ -1042,7 +1044,6 @@ Proof.
   apply cstep_step.
   eassumption.
 Qed.
-
 
 (** * Example of how easy it is to add concurrency to a contextual semantics *)
 
