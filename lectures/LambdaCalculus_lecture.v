@@ -103,6 +103,12 @@ Module Ulc.
   (* Here are two curious definitions. *)
   Definition zero := \"f", \"x", "x".
   Definition plus1 := \"n", \"f", \"x", "f" @ ("n" @ "f" @ "x").
+  
+  Lemma zero_plus1_one : eval (plus1 @ zero) (\"f", \"x", "f" @ "x").
+  Proof.
+    unfold plus1, zero.
+    econstructor. econstructor. econstructor. simplify.
+  Abort.
 
   (* We can build up any natural number [n] as [plus1^n @ zero].  Let's prove
    * that, in fact, these definitions constitute a workable embedding of the
@@ -190,7 +196,7 @@ Module Ulc.
     simplify.
     econstructor.
     econstructor.
-    simplify.
+    simplify. (* no effect *)
     eassumption.
 
     simplify.
@@ -240,14 +246,14 @@ Module Ulc.
   Lemma mult_ok' : forall m n,
       eval
         (subst (\ "f", (\ "x", "x")) "x"
-               (subst
-                  (\ "m",
-                   ((\ "f", (\ "x", canonical' m)) @
-                                                   (\ "n", (\ "f", (\ "x", "f" @ (("n" @ "f") @ "x"))))) @ "m")
+           (subst
+              (\ "m",
+               ((\ "f", (\ "x", canonical' m)) @
+                  (\ "n", (\ "f", (\ "x", "f" @ (("n" @ "f") @ "x"))))) @ "m")
                   "f" (canonical' n))) (canonical (n * m)).
   Proof.
     induct n; simplify.
-
+    
     econstructor.
 
     econstructor.
@@ -319,13 +325,13 @@ Module Ulc.
   Inductive plug : context -> exp -> exp -> Prop :=
   | PlugHole : forall e,
     plug Hole e e
-  | PlugApp1 : forall c e1 e2 e,
-    plug c e1 e
-    -> plug (App1 c e2) e1 (App e e2)
-  | PlugApp2 : forall c e1 e2 e,
+  | PlugApp1 : forall C e1 e2 e,
+    plug C e1 e
+    -> plug (App1 C e2) e1 (App e e2)
+  | PlugApp2 : forall C e1 e2 e,
     value e1
-    -> plug c e2 e
-    -> plug (App2 e1 c) e2 (App e1 e).
+    -> plug C e2 e
+    -> plug (App2 e1 C) e2 (App e1 e).
   (* Subtle point: the [value] hypothesis right above enforces a well-formedness
    * condition on contexts that may actually be plugged.  We don't allow
    * skipping over a lefthand subterm of an application when that term has
@@ -337,10 +343,10 @@ Module Ulc.
    * skip a [step0] relation, since function application (called "beta
    * reduction") is the only option here. *)
   Inductive step : exp -> exp -> Prop :=
-  | ContextBeta : forall c x e v e1 e2,
+  | ContextBeta : forall C x e v e1 e2,
     value v
-    -> plug c (App (Abs x e) v) e1
-    -> plug c (subst v x e) e2
+    -> plug C (App (Abs x e) v) e1
+    -> plug C (subst v x e) e2
     -> step e1 e2.
 
   Hint Constructors plug step.
@@ -348,14 +354,14 @@ Module Ulc.
   (* Here we now go through a proof of equivalence between big- and small-step
    * semantics, though we won't spend any further commentary on it. *)
 
-  Lemma step_eval'' : forall v c x e e1 e2 v0,
+  Lemma step_eval'' : forall v C x e e1 e2 v0,
     value v
-    -> plug c (App (Abs x e) v) e1
-    -> plug c (subst v x e) e2
+    -> plug C (App (Abs x e) v) e1
+    -> plug C (subst v x e) e2
     -> eval e2 v0
     -> eval e1 v0.
   Proof.
-    induct c; invert 2; invert 1; simplify; eauto.
+    induct C; invert 2; invert 1; simplify; eauto.
     invert H0; eauto.
     invert H0; eauto.
   Qed.
@@ -396,8 +402,9 @@ Module Ulc.
     specialize (IHplug e0); first_order; eauto.
 
     specialize (IHplug e0); first_order; eauto.
-  Qed.    
+  Qed.
 
+  
   Fixpoint compose (C1 C2 : context) : context :=
     match C2 with
     | Hole => C1
@@ -457,7 +464,13 @@ Module Ulc.
     induct 1; eauto.
 
     eapply trc_trans.
+    (* 
+    eapply stepStar_plug.
+    instantiate (1:= Abs x e1'). eassumption.
+    instantiate (1 := App1 Hole e2). econstructor. econstructor.
+    *)
     eapply stepStar_plug with (e1 := e1) (e2 := Abs x e1') (C := App1 Hole e2); eauto.
+    
     eapply trc_trans.
     eapply stepStar_plug with (e1 := e2) (e2 := v2) (C := App2 (Abs x e1') Hole); eauto.
     eauto.
