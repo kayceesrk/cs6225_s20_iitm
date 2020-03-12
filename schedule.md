@@ -15,7 +15,7 @@ permalink: /schedule/
 | 7 | Logic Programming | 05/02, 06/02  | [Coq]({{site.baseurl}}/lectures/LogicProgramming.v) | |
 | 8 | Transition Systems | 10/2 + tutorial, 11/2, 12/2, 13/2, 17/2 + tutorial, 18/2 | [Coq]({{site.baseurl}}/lectures/TransitionSystems.v), [slides(key)]({{site.baseurl}}/lectures/2_transition_systems.key), [slides (pdf)]({{site.baseurl}}/lectures/2_transition_systems.pdf) | |
 | 9 | Operational Semantics | 19/2, 20/2, 24/2 (only tutorial), 25/2 (only tutorial), 26/2, 27/2, 02/03 (only tutorial), 03/03, 05/03 | [Coq]({{site.baseurl}}/lectures/OperationalSemantics.v), [slides(key)]({{site.baseurl}}/lectures/3_operational_semantics.key), [slides (pdf)]({{site.baseurl}}/lectures/3_operational_semantics.pdf) | |
-| 10 | Lambda Calculus | 05/03, 09/03 + tutorial | [Coq]({{site.baseurl}}/lectures/LambdaCalculus.v) | |
+| 10 | Lambda Calculus | 05/03, 09/03 + tutorial, 11/03, 12/03 | [Coq]({{site.baseurl}}/lectures/LambdaCalculus.v), [slides(key)]({{site.baseurl}}/lectures/4_lambda_calculus.key), [slides (pdf)]({{site.baseurl}}/lectures/2_lambda_calculus.pdf) | |
 | 11 | Hoare Logic | | [Coq]({{site.baseurl}}/lectures/HoareLogic.v) | |
 | 12 | Functional Programming in F\* | | [slides(pdf)]({{site.baseurl}}/lectures/1_fstar_functional_programming.key), [fst]({{site.baseurl}}/lectures/fstar_functional.fst) | |
 | 13 | Verifying Functional Programs in F\* | | [fst]({{site.baseurl}}/lectures/fstar_verification.fst) | |

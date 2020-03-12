@@ -96,6 +96,7 @@ Module Ulc.
     trivial.
   Qed.
 
+  (* <--- Stopped Here ---> *)
 
   (** * Church Numerals, everyone's favorite example of lambda terms in
       * action *)
@@ -108,6 +109,7 @@ Module Ulc.
   Proof.
     unfold plus1, zero.
     econstructor. econstructor. econstructor. simplify.
+    (* Equivalent only under full-beta reduction. *)
   Abort.
 
   (* We can build up any natural number [n] as [plus1^n @ zero].  Let's prove
@@ -361,6 +363,16 @@ Module Ulc.
     -> eval e2 v0
     -> eval e1 v0.
   Proof.
+
+    induct C.
+    
+    invert 2. invert 1. simplify. econstructor.  econstructor. invert H.  econstructor. 
+    eassumption.
+    
+    (* C[(\x,e0) @ v] = e5 /\ e5 @ e = e1 *)
+    invert 2. invert 1. simplify. invert H0. econstructor. eapply IHC. eassumption. eassumption. eassumption. eassumption. eassumption. eassumption.
+
+    
     induct C; invert 2; invert 1; simplify; eauto.
     invert H0; eauto.
     invert H0; eauto.
@@ -386,6 +398,9 @@ Module Ulc.
     induct 1; eauto.
   Qed.
 
+
+  (* <----Skip Start----> *)
+  
   Lemma plug_functional : forall C e e1,
       plug C e e1
       -> forall e2, plug C e e2
@@ -430,7 +445,7 @@ Module Ulc.
   Proof.
     invert 1; simplify; eauto.
   Qed.
-
+  
   Lemma stepStar_plug : forall e1 e2,
     step^* e1 e2
     -> forall C e1' e2', plug C e1 e1'
@@ -475,6 +490,8 @@ Module Ulc.
     eapply stepStar_plug with (e1 := e2) (e2 := v2) (C := App2 (Abs x e1') Hole); eauto.
     eauto.
   Qed.
+  
+  (* <----Skip End----> *)
 End Ulc.
 
 
@@ -644,44 +661,34 @@ Module Stlc.
     propositional.
 
     right.
+    invert H; 
+    invert H0;
+    invert H1;
+    invert H3.
     (* Some automation is needed here to maintain compatibility with
      * name generation in different Coq versions. *)
-    match goal with
+    (* match goal with
     | [ H1 : value e1, H2 : hasty $0 e1 _ |- _ ] => invert H1; invert H2
     end.
     match goal with
     | [ H1 : value e2, H2 : hasty $0 e2 _ |- _ ] => invert H1; invert H2
-    end.
+    end. *)
     exists (Const (n + n0)).
     eapply StepRule with (C := Hole).
     eauto.
     eauto.
     constructor.
 
-    match goal with
-    | [ H : exists x, _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H3. invert H2.
     right.
     eauto.
 
-    match goal with
-    | [ H : exists x, _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H1. invert H2.
     right.
     eauto.
 
-    match goal with
-    | [ H : exists x, step e1 _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H3.
+    invert H2.
     right.
     exists (Plus x e2).
     eapply StepRule with (C := Plus1 C e2).
@@ -695,9 +702,7 @@ Module Stlc.
     propositional.
 
     right.
-    match goal with
-    | [ H1 : value e1, H2 : hasty $0 e1 _ |- _ ] => invert H1; invert H2
-    end.
+    invert H3; invert H.
     exists (subst e2 x e0).
     eapply StepRule with (C := Hole).
     eauto.
@@ -705,47 +710,39 @@ Module Stlc.
     constructor.
     assumption.
 
-    match goal with
-    | [ H : exists x, _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H3. invert H2.
     right.
     eauto.
 
-    match goal with
-    | [ H : exists x, _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H1. invert H2.
     right.
     eauto.
 
-    match goal with
-    | [ H : exists x, step e1 _ |- _ ] => invert H
-    end.
-    match goal with
-    | [ H : step _ _ |- _ ] => invert H
-    end.
+    invert H3.
+    invert H2.
     right.
     exists (App x e2).
     eapply StepRule with (C := App1 C e2).
     eauto.
     eauto.
     assumption.
-  Qed.
+  Qed.  
 
-  (* Inclusion between typing contexts is preserved by adding the same new mapping
-   * to both. *)
+  (* Skip 
+  
+     Inclusion between typing contexts is preserved by adding the same new mapping
+     to both. *)
   Lemma weakening_override : forall (G G' : fmap var type) x t,
     (forall x' t', G $? x' = Some t' -> G' $? x' = Some t')
     -> (forall x' t', G $+ (x, t) $? x' = Some t'
                       -> G' $+ (x, t) $? x' = Some t').
   Proof.
     simplify.
-    cases (x ==v x'); simplify; eauto.
+    cases (x ==v x').
+    
+    simplify. eauto.
+    
+    simplify. eauto.
   Qed.
 
   (* This lemma lets us transplant a typing derivation into a new context that
@@ -933,6 +930,7 @@ Module Stlc.
     (* Step 1: strengthen the invariant.  In particular, the typing relation is
      * exactly the right stronger invariant!  Our progress theorem proves the
      * required invariant inclusion. *)
+    Check invariant_weaken.
     apply invariant_weaken with (invariant1 := fun e' => hasty $0 e' t).
 
     (* Step 2: apply invariant induction, whose induction step turns out to match
@@ -949,6 +947,7 @@ Module Stlc.
     eassumption.
   Qed.
 
+  (* <---- SKIP START ----> *)
 
   (** * Let's do that again with more automation, whose details are beyond the
       * scope of the book. *)
@@ -1050,4 +1049,6 @@ Module Stlc.
     apply invariant_weaken with (invariant1 := fun e' => hasty $0 e' t); eauto.
     apply invariant_induction; simplify; eauto; equality.
   Qed.
+  
+  (* <---- SKIP END ----> *)
 End Stlc.
