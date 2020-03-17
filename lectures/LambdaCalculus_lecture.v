@@ -363,7 +363,7 @@ Module Ulc.
     -> eval e2 v0
     -> eval e1 v0.
   Proof.
-
+(*
     induct C.
     
     invert 2. invert 1. simplify. econstructor.  econstructor. invert H.  econstructor. 
@@ -371,7 +371,7 @@ Module Ulc.
     
     (* C[(\x,e0) @ v] = e5 /\ e5 @ e = e1 *)
     invert 2. invert 1. simplify. invert H0. econstructor. eapply IHC. eassumption. eassumption. eassumption. eassumption. eassumption. eassumption.
-
+*)
     
     induct C; invert 2; invert 1; simplify; eauto.
     invert H0; eauto.
@@ -661,27 +661,24 @@ Module Stlc.
     propositional.
 
     right.
-    invert H; 
-    invert H0;
-    invert H1;
-    invert H3.
-    (* Some automation is needed here to maintain compatibility with
-     * name generation in different Coq versions. *)
-    (* match goal with
-    | [ H1 : value e1, H2 : hasty $0 e1 _ |- _ ] => invert H1; invert H2
-    end.
-    match goal with
-    | [ H1 : value e2, H2 : hasty $0 e2 _ |- _ ] => invert H1; invert H2
-    end. *)
-    exists (Const (n + n0)).
-    eapply StepRule with (C := Hole).
-    eauto.
-    eauto.
-    constructor.
+    invert H1. 
+    invert H3. 
+    eexists (Const (n0 + n)). 
+    eapply StepRule with (C := Hole). 
+    eauto. 
+    eauto. 
+    constructor. 
+    invert H. 
+    invert H0. 
 
     invert H3. invert H2.
     right.
+    eexists (Plus x e2).
+    eapply StepRule with (C := Plus1 C e2).
     eauto.
+    eauto.
+    assumption.
+    (* eauto. also works *)
 
     invert H1. invert H2.
     right.
@@ -690,11 +687,7 @@ Module Stlc.
     invert H3.
     invert H2.
     right.
-    exists (Plus x e2).
-    eapply StepRule with (C := Plus1 C e2).
     eauto.
-    eauto.
-    assumption.
 
     left.
     constructor.
@@ -857,6 +850,7 @@ Module Stlc.
       -> (forall t, hasty $0 e1 t -> hasty $0 e2 t)
       -> (forall t, hasty $0 e1' t -> hasty $0 e2' t).
   Proof.
+    (* skip *)
     induct 1; simplify.
 
     invert H.
