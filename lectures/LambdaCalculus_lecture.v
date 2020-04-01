@@ -617,12 +617,22 @@ Module Stlc.
 
   Example one_plus_one : hasty $0 (1 ^+^ 1) Nat.
   Proof.
-    repeat (econstructor; simplify).
+    eapply HtPlus.
+    eapply HtConst.
+    eapply HtConst.
+    (* repeat (econstructor; simplify). *)
   Qed.
 
   Example add : hasty $0 (\"n", \"m", "n" ^+^ "m") (Nat --> Nat --> Nat).
   Proof.
-    repeat (econstructor; simplify).
+    eapply HtAbs.
+    eapply HtAbs.
+    eapply HtPlus.
+    eapply HtVar.
+    simplify; equality.
+    eapply HtVar.
+    simplify; equality.
+    (* repeat (econstructor; simplify). *)
   Qed.
 
   Example eleven : hasty $0 ((\"n", \"m", "n" ^+^ "m") @ 7 @ 4) Nat.
@@ -658,21 +668,21 @@ Module Stlc.
     left.
     constructor.
 
-    propositional.
+    propositional. 
 
     right.
-    invert H1. 
-    invert H3. 
-    eexists (Const (n0 + n)). 
+    invert H1.
+    invert H3.
+    eexists (Const (n0 + n)).
     eapply StepRule with (C := Hole). 
     eauto. 
     eauto. 
-    constructor. 
-    invert H. 
-    invert H0. 
+    constructor.
+    invert H.
+    invert H0.
 
-    invert H3. invert H2.
     right.
+    invert H3. invert H2.
     eexists (Plus x e2).
     eapply StepRule with (C := Plus1 C e2).
     eauto.
@@ -695,7 +705,9 @@ Module Stlc.
     propositional.
 
     right.
-    invert H3; invert H.
+    invert H3. invert H.
+    
+    invert H.
     exists (subst e2 x e0).
     eapply StepRule with (C := Hole).
     eauto.
@@ -719,7 +731,7 @@ Module Stlc.
     eauto.
     eauto.
     assumption.
-  Qed.  
+  Qed.
 
   (* Skip 
   
@@ -733,9 +745,9 @@ Module Stlc.
     simplify.
     cases (x ==v x').
     
-    simplify. eauto.
+    simplify. assumption.
     
-    simplify. eauto.
+    simplify. apply H. assumption.
   Qed.
 
   (* This lemma lets us transplant a typing derivation into a new context that
@@ -771,6 +783,7 @@ Module Stlc.
     assumption.
   Qed.
 
+  (* SKIP *)
   (* Replacing a variable with a properly typed term preserves typing. *)
   Lemma substitution : forall G x t' e t e',
     hasty (G $+ (x, t')) e t
@@ -937,6 +950,7 @@ Module Stlc.
     assumption.
 
     simplify.
+    Check progress.
     eapply progress.
     eassumption.
   Qed.
