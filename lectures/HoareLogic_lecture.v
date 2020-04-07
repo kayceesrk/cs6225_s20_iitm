@@ -24,7 +24,8 @@ Inductive exp :=
  * expressions. *)
 Inductive bexp :=
 | Equal (e1 e2 : exp)
-| Less (e1 e2 : exp).
+| Less (e1 e2 : exp)
+| Or (e1 e2 : bexp).
 
 Definition heap := fmap nat nat.
 Definition valuation := fmap var nat.
@@ -65,6 +66,7 @@ Fixpoint beval (b : bexp) (h : heap) (v : valuation) : bool :=
   match b with
   | Equal e1 e2 => if eval e1 h v ==n eval e2 h v then true else false
   | Less e1 e2 => if eval e2 h v <=? eval e1 h v then false else true
+  | Or e1 e2 => beval e1 h v || beval e2 h v
   end.
 
 (* A big-step operational semantics for commands *)
@@ -73,7 +75,7 @@ Inductive exec : heap -> valuation -> cmd -> heap -> valuation -> Prop :=
   exec h v Skip h v
 | ExAssign : forall h v x e,
   exec h v (Assign x e) h (v $+ (x, eval e h v))
-| ExWrite : forall h v e1 e2,
+| (* XXX *) ExWrite : forall h v e1 e2,
   exec h v (Write e1 e2) (h $+ (eval e1 h v, eval e2 h v)) v
 | ExSeq : forall h1 v1 c1 h2 v2 c2 h3 v3,
   exec h1 v1 c1 h2 v2
@@ -112,7 +114,7 @@ Inductive exec : heap -> valuation -> cmd -> heap -> valuation -> Prop :=
 
 Inductive hoare_triple : assertion -> cmd -> assertion -> Prop :=
 | HtSkip : forall P, hoare_triple P Skip P
-| HtAssign : forall (P : assertion) x e,
+| (* XXX *) HtAssign : forall (P : assertion) x e,
   hoare_triple P (Assign x e) (fun h v => exists v', P h v' /\ v = v' $+ (x, eval e h v'))
 | HtWrite : forall (P : assertion) (e1 e2 : exp),
   hoare_triple P (Write e1 e2) (fun h v => exists h', P h' v /\ h = h' $+ (eval e1 h' v, eval e2 h' v))
@@ -131,7 +133,7 @@ Inductive hoare_triple : assertion -> cmd -> assertion -> Prop :=
 | HtAssert : forall P I : assertion,
   (forall h v, P h v -> I h v)
   -> hoare_triple P (Assert I) P
-| HtConsequence : forall (P Q P' Q' : assertion) c,
+| (* XXX *) HtConsequence : forall (P Q P' Q' : assertion) c,
   hoare_triple P c Q
   -> (forall h v, P' h v -> P h v)
   -> (forall h v, Q h v -> Q' h v)
@@ -285,7 +287,8 @@ Theorem max_ok : forall a b,
 Proof.
   simplify.
   eapply HtStrengthenPost.
-  apply HtIf.
+  apply HtIf. 
+  (* Every branch causes duplication of constraints. We will come back to this when we look at F*. *)
   apply HtAssign.
   apply HtAssign.
   simplify.
@@ -302,6 +305,101 @@ Theorem max_ok_snazzy : forall a b,
   {{_&v ~> v $! "m" = max a b}}.
 Proof.
   ht.
+Qed.
+
+Theorem reduce_to_zero:
+  {{_&_ ~> True}}
+
+  {{_&_ ~> True}} (* Loop invariant *)
+  while 0 < "x" loop
+    "x" <- "x" - 1
+  done
+  {{_&v ~> v $! "x" = 0}}.
+Proof.
+  simplify.
+  eapply HtStrengthenPost.
+  eapply HtWhile.
+  simplify.
+  equality.
+  eapply HtStrengthenPost.
+  eapply HtAssign.
+  simplify. equality.
+  t.
+Qed.
+
+Theorem reduce_to_zero_snazzy:
+  {{_&_ ~> True}}
+
+  {{_&_ ~> True}}
+  while 0 < "x" loop
+    "x" <- "x" - 1
+  done
+  {{_&v ~> v $! "x" = 0}}.
+Proof.
+  ht.
+Qed.
+
+Theorem division': forall m n,
+  {{_&v ~> v $! "x" = m /\ v $! "y" = n }}
+  "q" <- 0;;
+  {{_&_ ~> True}}
+  while Or ("y" < "x") ("y" = "x") loop
+    "x" <- "x" - "y";;
+    "q" <- "q" + 1
+  done
+  {{_&v ~> v $! "q" = m / (v $! "y")}}.
+Proof.
+  ht.
+  cases (v $! "y" ==n v $! "x").
+  equality.
+Abort.
+
+Lemma lem1: forall x y q,
+  y < x -> (y * (q + 1)) + (x - y) = (y * q) + x.
+Proof.
+  simplify.
+  SearchRewrite (_ * (_ + _)).
+  rewrite Nat.mul_add_distr_l.
+  SearchRewrite ( _ * 1).
+  rewrite Nat.mul_1_r.
+  assert (y < x -> y <= x). linear_arithmetic.
+  apply H0 in H.
+  SearchRewrite ((_ + (_ - _))).
+  apply le_plus_minus in H.
+  SearchRewrite ((_ + _) + _).
+  rewrite <- Nat.add_assoc.
+  rewrite <- H.
+  equality.
+Qed.
+
+Theorem division: forall m n,
+  {{_&v ~> v $! "x" = m /\ v $! "y" = n }}
+  "q" <- 0;;
+  {{_&v ~> (v $! "y") * (v $! "q") + (v $! "x") = m}}
+  while Or ("y" < "x") ("y" = "x") loop
+    "x" <- "x" - "y";;
+    "q" <- "q" + 1
+  done
+  {{_&v ~> v $! "q" = m / (v $! "y")}}.
+Proof.
+  ht.
+  
+  + cases (x0 $! "y" ==n x0 $! "x").
+    - rewrite e.
+      SearchRewrite(_ - _).
+      rewrite Nat.sub_diag.
+      ring.
+    - equality.
+  + apply lem1.
+    assumption.
+  + cases (v $! "y" ==n v $! "x").
+    - equality.
+    - assert ( v $! "x" < v $! "y").
+      linear_arithmetic.
+      Search (_ = _ / _).
+      eapply Nat.div_unique.
+      eassumption.
+      equality.
 Qed.
 
 (** ** Iterative factorial *)
@@ -487,30 +585,40 @@ Definition unstuck (st : heap * valuation * cmd) :=
 
 (* A convenient property of Hoare triples: they rule out stuckness, regardless
  * of the specs we choose, so long as the precondition accurately describes the
- * real execution state!  Note that the only real possibility for stuckness in
+ * real execution state!  
+ *
+ * Note that the only real possibility for stuckness in
  * the semantics is via [Assert], which is why we included it.  We reduce
  * arbitrary correctness checks, on intermediate program states, to stuckness or
  * lack thereof in program execution. *)
-Lemma hoare_triple_unstuck : forall P c Q,
+Lemma progress : forall P c Q,
   {{P}} c {{Q}}
   -> forall h v, P h v
                  -> unstuck (h, v, c).
 Proof.
-  induct 1; unfold unstuck; simplify; propositional; eauto.
 
-  apply IHhoare_triple1 in H1.
-  unfold unstuck in H1; simplify; first_order; subst; eauto.
-  cases x.
-  cases p.
+  induct 1; unfold unstuck; simplify; propositional.
+  
+  eauto.
+  
   eauto.
 
-  cases (beval b h v); eauto.
+  apply IHhoare_triple1 in H1.
+  unfold unstuck in H1. 
+  simplify. propositional. subst. right. eexists. constructor.
+  invert H2. cases x. cases p. right. eexists. econstructor. eauto.
+
+  cases (beval b h v). 
+  right. eexists. econstructor. eassumption. 
+  right. eexists. eapply StIfFalse. eassumption.
 
   cases (beval b h v); eauto.
 
+  apply H in H0. right. eexists. econstructor. assumption.
+  
   apply H0 in H2.
   apply IHhoare_triple in H2.
-  unfold unstuck in H2; simplify; first_order.
+  unfold unstuck in H2. simplify. first_order.
 Qed.
 
 (* Another basic property: [Skip] has no effect on program state, and the set of
@@ -526,16 +634,17 @@ Qed.
  * Hoare triples.  We even give the concrete specification for the new command
  * [c'] that was stepped to.  It keeps the old postcondition, and we give it a
  * very specific precondition saying "the state is exactly this." *)
-Lemma hoare_triple_step : forall P c Q,
+Lemma preservation : forall P c Q,
   {{P}} c {{Q}}
   -> forall h v h' v' c',
       step (h, v, c) (h', v', c')
       -> P h v
       -> {{h''&v'' ~> h'' = h' /\ v'' = v'}} c' {{Q}}.
 Proof.
+  (* Skip *)
   induct 1.
 
-  invert 1.
+  invert 1. (* you cannot step a [Skip] command *)
 
   invert 1; ht; eauto.
 
@@ -579,16 +688,17 @@ Qed.
 (* Oh, what a coincidence! ;-)  As with type-safety proofs, we find that the
  * reasonably intuitive properties we just proved are precisely the hard parts
  * of a standard proof by invariant strengthening and invariant induction. *)
-Theorem hoare_triple_invariant : forall P c Q h v,
+Theorem invariant_safety : forall P c Q h v,
   {{P}} c {{Q}}
   -> P h v
   -> invariantFor (trsys_of (h, v, c)) unstuck.
 Proof.
   simplify.
-  apply invariant_weaken with (invariant1 := fun st => {{h&v ~> h = fst (fst st)
-                                                           /\ v = snd (fst st)}}
-                                                         snd st
-                                                       {{_&_ ~> True}}).
+  apply invariant_weaken 
+    with (invariant1 := 
+            fun st => {{h&v ~> h = fst (fst st) (* h *) /\ v = snd (fst st) (* v *) }}
+                      snd st (* c *)  
+                      {{_&_ ~> True}}).
 
   apply invariant_induction; simplify.
 
@@ -601,14 +711,14 @@ Proof.
   cases p.
   cases p0.
   simplify.
-  eapply hoare_triple_step; eauto.
+  eapply preservation; eauto.
   simplify; auto.
 
   simplify.
   cases s.
   cases p.
   simplify.
-  eapply hoare_triple_unstuck; eauto.
+  eapply progress; eauto.
   simplify; auto.
 Qed.
 
@@ -627,6 +737,7 @@ Definition forever := (
   (* Note that this last assertion implies that the program never terminates! *)
 )%cmd.
 
+(* The program will not terminate, but the assertion holds forever *)
 Theorem forever_ok : {{_&_ ~> True}} forever {{_&_ ~> False}}.
 Proof.
   ht.
@@ -634,7 +745,7 @@ Qed.
 
 Theorem forever_invariant : invariantFor (trsys_of ($0, $0, forever)) unstuck.
 Proof.
-  eapply hoare_triple_invariant.
+  eapply invariant_safety.
   apply forever_ok.
   simplify; trivial.
 Qed.
