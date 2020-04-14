@@ -11,17 +11,17 @@ under `assignments/pset*`.
 All assignments should be submitted through the [course
 moodle](https://courses.iitm.ac.in/course/view.php?id=5339). 
 
-| Problem Set | Released | Due Date |
-|------------:|----------|----------|
-| 1 | 14/01/2020 | 21/01/2020 |
-| 2 | 21/01/2020 | 28/01/2020 |
-| 3 | 28/01/2020 | 04/02/2020 |
-| 4 | 04/02/2020 | 11/02/2020 |
-| 5 | 09/02/2020 | 18/02/2020 |
-| 6 | 18/02/2020 | 03/03/2020 |
-| 7 | 05/03/2020 | 12/03/2020 |
-| 8 | 16/03/2020 | 07/04/2020 |
-| 9 | 07/04/2020 | 15/04/2020 |
+| Problem Set | Released | Due Date | Topic |
+|------------:|----------|----------|-------|
+| 1 | 14/01/2020 | 21/01/2020 | Functional Programming in Coq |
+| 2 | 21/01/2020 | 28/01/2020 | Logic in Coq |
+| 3 | 28/01/2020 | 04/02/2020 | Induction in Coq |
+| 4 | 04/02/2020 | 11/02/2020 | (a) Program Syntax (b) Lists |
+| 5 | 09/02/2020 | 18/02/2020 | (a) Higher order functions (b) Binary Search Trees |
+| 6 | 18/02/2020 | 03/03/2020 | Transition Systems: Peterson's Mutex Algorithm | 
+| 7 | 05/03/2020 | 12/03/2020 | Operational Semantics: Non-determinism | 
+| 8 | 16/03/2020 | 07/04/2020 | Type safety of subtyping |
+| 9 | 07/04/2020 | 15/04/2020 | Hoare Logic with I/O |
 
 <br/>
 

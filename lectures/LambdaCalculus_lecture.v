@@ -843,8 +843,8 @@ Module Stlc.
       -> hasty $0 e2 t.
   Proof.
     invert 1; simplify.
-
-    invert H.
+    
+    + invert H.
     invert H4.
     eapply substitution.
     eassumption.

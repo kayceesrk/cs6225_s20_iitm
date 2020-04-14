@@ -2,12 +2,21 @@ module Fstar_functional
 
 open FStar.Mul
 
+(* Statically Checked Assertions *)
+
+let max i1 i2 = if i1 > i2 then i1 else i2
+ 
+let _ = assert (max 0 1 = 1)
+
+let _ = assert (forall x y z. max x y = y && max y z = z ==>
+                         max x z = z)
+ 
 (* Recursive functions *)
 
 val factorial: nat -> nat
 let rec factorial n =
   if n = 0 then 1
-  else n * (factorial (n - 1))
+  else n * (factorial (n - 1)) (* in coq [n-1] would complain *)
 
 (* Inductive datatypes and pattern matching *)
 
@@ -175,7 +184,7 @@ let loops_forever () = eval (App (Lam 0 (App (Var 0) (Var 0)))
 
 (* Only pure code can appear in specs *)
 
-(* type tau = x:int{x = factorial3(-1)} *)
+(* type tau = x:int{x = factorial3(5)} *)
 
 (* Divergent code can call pure code *)
 
@@ -230,7 +239,7 @@ val staticChecking : unit -> ML unit
 let staticChecking () =
   let v1 = read tmp in
   let v2 = read readme in
-  (* let v3 = read passwd in // invalid read, fails type-checking *)
+  (* let v3 = read passwd in (* invalid read, fails type-checking *) *)
   write tmp "hello!"
   (* ; write passwd "junk" // invalid write , fails type-checking *)
 

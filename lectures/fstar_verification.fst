@@ -17,7 +17,7 @@ let rec factorial n =
 (* We can also equivalently write pre- and post-conditions for this *)
 
 val factorial2 : x : int -> Pure int (requires (x >= 0))
-                               (ensures (fun y -> y >= 0))
+                                (ensures (fun y -> y >= 0))
 let rec factorial2 n =
   if n = 0 then 1 else n * factorial2 (n-1)
 
@@ -57,7 +57,7 @@ let rec factorial3 n =
 
     [x0:t0 -> ... -> xn:tn{x1...xn-1} -> C ]
 
-    where the notation {x1...xn-1} sal2 that the variables x1 to xn-1 may appear
+    where the notation {x1...xn-1} says that the variables x1 to xn-1 may appear
     free in the refinement.
 *)
 
@@ -69,7 +69,7 @@ val length : list 'a -> Tot nat
 let rec length l =
   match l with
   | [] -> 0
-  | _::ls -> length ls + 1
+  | _::ls -> 1 + length ls
 
 val append : l1:list 'a -> l2:list 'a -> l3:list 'a{length l3 = length l1 + length l2}
 let rec append l1 l2 =
@@ -102,11 +102,23 @@ let rec append_len l1 l2 =
   (* To show: length (append2 [] l2) = length [] + length l2 *)
   (* Still to show after computation: length l2 = 0 + length l2 *)
 
-  | x::xs -> append_len xs l2
-  (* Know recursive call's postcondition (rec_post): length (app xs l2) = length xs + length l2  *)
+  (* Use assertion to verify the conditions that hold inside a branch *)
+
+  (* ; assert (length (append2 l1 l2) = length l2)
+     ; assert (length l1 + length l2 = length l2)
+   *)
+  | x::xs -> append_len xs l2 (* Inductive Case *)
+  (* Know recursive call's postcondition (rec_post): length (append2 xs l2) = length xs + length l2  *)
+
   (* To show: len (append2 (x::xs) l2) = length (x::xs) + length l2 *)
+  (* Simplify: len (x::append2 xs l2) = length (x::xs) + length l2 *)
   (* Simplify: 1 + len (append2 xs l2) = (1 + length xs) + length l2 *)
+
   (* Still to show: rec_post ==> 1 + length (append2 xs l2) = (1 + length xs) + length l2 *)
+  (*       to show:     length (append2 xs l2) =      length xs  + length l2 ==>
+                    1 + length (append2 xs l2) = (1 + length xs) + length l2 *)
+  (*       to show:     v1 =      v2  + v3 ==>
+                    1 + v2 = (1 + v2) + v2 *)
 
 (** Lemma Syntactic Sugar
 
@@ -120,7 +132,7 @@ let rec append_len2 (l1 l2 : list 'a) :
   match l1 with
   | [] -> ()
   | x::xs -> append_len2 xs l2
-
+ 
 (******************************************************************************)
 
 (** Some times Lemmas are unavoidable. *)
@@ -153,7 +165,25 @@ val rev_snoc: #a:Type -> l:list a -> h:a -> Lemma (rev (snoc l h) == h::rev l)
 let rec rev_snoc (#a:Type) l h =
   match l with
   | [] -> ()
-  | hd::tl -> rev_snoc tl h
+    (* rev (snoc [] h) == h::rev [] *)
+    (* rev ([] @ [h]) == h::[] *)
+    (* rev [h] == [h] *)
+    (* rev (h::[]) == [h] *)
+    (* snoc (rev []) h == [h] *)
+    (* snoc [] h == [h] *)
+    (* [] @ [h] == [h] *)
+    (* [h] == [h] *)
+  | x::xs -> rev_snoc xs h
+    (* post-condition of recursive call (rec_post): rev (snoc xs h) == h::rev xs *)
+    (*                                              rev (xs @ [h])  == h::rev xs *)
+
+    (*  To show: rec_post ==> rev (snoc (x::xs) h) == h::rev(x::xs) *)
+    (* simplify: rec_post ==> rev ((x::xs) @ [h]) == h::(snoc (rev xs) x) *)
+    (* simplify: rec_post ==> rev (x::(xs @ [h])) == h::((rev xs) @ [x]) *)
+    (* simplify: rec_post ==> snoc (rev (xs @ [h])) x == h::((rev xs) @ [x]) *)
+    (* rewrite : rec_post ==> snoc (h::rev xs) x == h::((rev xs) @ [x]) *)
+    (* simplify : rec_post ==> (h::rev xs) @ x == h::((rev xs) @ [x]) *)
+    (* simplify : rec_post ==> h::(rev xs @ x) == h::((rev xs) @ [x]) *)
 
 val rev_involutive: #a:Type -> l:list a -> Lemma (rev (rev l) == l)
 let rec rev_involutive (#a:Type) l =
@@ -224,6 +254,8 @@ let rec fact_same n =
 (** Insertion Sort
 
     Let us implement and verify an insertion sort algorithm.
+
+    Section 6.1.3 in https://www.fstar-lang.org/tutorial/
 *)
 
 val sorted: list int -> Tot bool
@@ -232,10 +264,82 @@ let rec sorted l = match l with
     | [x] -> true
     | x::y::xs -> (x <= y) && (sorted (y::xs))
 
-val meml: int -> list int -> Tot bool
-let rec meml a l = match l with
-  | [] -> false
-  | hd::tl -> hd=a || meml a tl
+(*
+
+val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+       x::insert_sorted a xs
+*)
+
+(*
+
+val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+      // To prove:
+          let _ = assert (forall y. mem y (x::insert_sorted a xs) <==> y == a \/ mem y (x::xs)) in 
+          // let _ = assert (sorted (x::insert_sorted a xs)) in
+       // From the branch we are in:
+          let _ = assert (x < a) in
+       // From the recursive invocation:
+          let _ = assert (sorted (insert_sorted a xs)) in 
+          let _ = assert (forall z. mem z (insert_sorted a xs) <==> z = a \/ mem z xs) in 
+          x::insert_sorted a xs
+
+*)
+
+(*
+val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+       let _ = assert (sorted (insert_sorted a xs)) in
+       let _ = assert (x < a) in
+       let r = insert_sorted a xs in
+       let m::_ = r in
+       if mem m xs then admit () else () (* m = a /\ x < a ==> x < m *);
+       x::r
+*)
+
+(*
+val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+       let _ = assert (sorted (insert_sorted a xs)) in
+       let _ = assert (x < a) in
+       let r = insert_sorted a xs in
+       let m::_ = r in
+       if mem m xs then assume (x < m) else () (* m = a /\ x < a ==> x < m *);
+       x::r
+*)
 
 val sorted_smaller:
   x:int ->
@@ -248,6 +352,7 @@ let rec sorted_smaller x xs m = match xs with
     | [] -> ()
     | y::ys -> if y=m then () else sorted_smaller x ys m
 
+(*
 val insert_sorted :
   a:int ->
   l:list int{sorted l} ->
@@ -258,9 +363,27 @@ let rec insert_sorted a l = match l with
      if a <= x then
        a::l
      else
-       (* Solver implicitly uses the lemma: sorted_smaller x xs a *)
-       x::(insert_sorted a xs)
+       let _ = assert (sorted (insert_sorted a xs)) in
+       let _ = assert (x < a) in
+       let r = insert_sorted a xs in
+       let m::_ = r in
+       if mem m xs then sorted_smaller x xs m else () (* m = a /\ x < a ==> x < m *);
+       x::r
+*)
 
+ val insert_sorted :
+  a:int ->
+  l:list int{sorted l} ->
+  Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
+let rec insert_sorted a l = match l with
+  | [] -> [a]
+  | x::xs ->
+     if a <= x then
+       a::l
+     else
+       (* [sorted_smaller x xs (hd (insert_sorted a xs))] is implicitly used *)
+       x::insert_sorted a xs
+ 
 (* Insertion sort *)
 val sort : l:list int -> Tot (m:list int{sorted m /\ (forall x. mem x l == mem x m)})
 let rec sort l = match l with
@@ -333,9 +456,9 @@ let rec swivel2 tr =
   match tr with
   | Leaf -> Leaf
   | Node v lt rt ->
-      let ih1 = rightmost lt = leftmost (swivel2 lt) in
+      (* let ih1 = rightmost lt = leftmost (swivel2 lt) in
       let ih2 = rightmost rt = leftmost (swivel2 rt) in
       assert (ih1);
       assert (ih2);
-      assert (rightmost tr = leftmost (Node v (swivel2 rt) (swivel2 lt)));
+      assert (rightmost tr = leftmost (Node v (swivel2 rt) (swivel2 lt))); *)
       Node v (swivel2 rt) (swivel2 lt)
