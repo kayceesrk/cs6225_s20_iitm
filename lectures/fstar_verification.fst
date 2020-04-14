@@ -36,7 +36,7 @@ let rec factorial2 n =
 val factorial3 : x : int -> Pure int (x >= 0) (fun y -> y >= 0)
 let rec factorial3 n =
   if n = 0 then 1 else n * factorial3 (n-1)
-
+ 
 (******************************************************************************)
 
 (** A high-level view of types in F*
@@ -55,9 +55,9 @@ let rec factorial3 n =
 
     Dependent functions are of the form
 
-    [x0:t0 -> ... -> xn:tn{x1...xn-1} -> C ]
+    [x0:t0 -> ... -> xn:tn{x0...xn-1} -> C ]
 
-    where the notation {x1...xn-1} says that the variables x1 to xn-1 may appear
+    where the notation {x0...xn-1} says that the variables x1 to xn-1 may appear
     free in the refinement.
 *)
 
@@ -100,13 +100,17 @@ let rec append_len l1 l2 =
   match l1 with
   | [] -> ()
   (* To show: length (append2 [] l2) = length [] + length l2 *)
-  (* Still to show after computation: length l2 = 0 + length l2 *)
+  (* Still to show after simplification: length l2 = 0 + length l2 *)
+  (* Discharged through SMT Solver: v = 0 + v *)
 
+  (* Proof Engineering *)
   (* Use assertion to verify the conditions that hold inside a branch *)
 
-  (* ; assert (length (append2 l1 l2) = length l2)
+  (*
+     ; assert (length (append2 l1 l2) = length l2)
      ; assert (length l1 + length l2 = length l2)
    *)
+
   | x::xs -> append_len xs l2 (* Inductive Case *)
   (* Know recursive call's postcondition (rec_post): length (append2 xs l2) = length xs + length l2  *)
 
@@ -114,11 +118,11 @@ let rec append_len l1 l2 =
   (* Simplify: len (x::append2 xs l2) = length (x::xs) + length l2 *)
   (* Simplify: 1 + len (append2 xs l2) = (1 + length xs) + length l2 *)
 
-  (* Still to show: rec_post ==> 1 + length (append2 xs l2) = (1 + length xs) + length l2 *)
-  (*       to show:     length (append2 xs l2) =      length xs  + length l2 ==>
+  (* Still to show: rec_post |= 1 + length (append2 xs l2) = (1 + length xs) + length l2 *)
+  (*       to show:     length (append2 xs l2) =      length xs  + length l2 |=
                     1 + length (append2 xs l2) = (1 + length xs) + length l2 *)
-  (*       to show:     v1 =      v2  + v3 ==>
-                    1 + v2 = (1 + v2) + v2 *)
+  (*       to show:     v1 =      v2  + v3 |=
+                    1 + v1 = (1 + v2) + v3 *)
 
 (** Lemma Syntactic Sugar
 
@@ -135,6 +139,7 @@ let rec append_len2 (l1 l2 : list 'a) :
  
 (******************************************************************************)
 
+(** Why do we want to use extrinic proofs? *)
 (** Some times Lemmas are unavoidable. *)
 
 let snoc l h = l @ [h]
@@ -160,7 +165,7 @@ let rev2 (#a:Type) l =
   | hd::tl -> snoc (rev tl) hd
 *)
 
-
+                                             (* rev ([1;2] @ [3]) = 3::rev [1;2] *)
 val rev_snoc: #a:Type -> l:list a -> h:a -> Lemma (rev (snoc l h) == h::rev l)
 let rec rev_snoc (#a:Type) l h =
   match l with
@@ -177,23 +182,24 @@ let rec rev_snoc (#a:Type) l h =
     (* post-condition of recursive call (rec_post): rev (snoc xs h) == h::rev xs *)
     (*                                              rev (xs @ [h])  == h::rev xs *)
 
-    (*  To show: rec_post ==> rev (snoc (x::xs) h) == h::rev(x::xs) *)
-    (* simplify: rec_post ==> rev ((x::xs) @ [h]) == h::(snoc (rev xs) x) *)
-    (* simplify: rec_post ==> rev (x::(xs @ [h])) == h::((rev xs) @ [x]) *)
-    (* simplify: rec_post ==> snoc (rev (xs @ [h])) x == h::((rev xs) @ [x]) *)
-    (* rewrite : rec_post ==> snoc (h::rev xs) x == h::((rev xs) @ [x]) *)
-    (* simplify : rec_post ==> (h::rev xs) @ x == h::((rev xs) @ [x]) *)
-    (* simplify : rec_post ==> h::(rev xs @ x) == h::((rev xs) @ [x]) *)
+    (*  To show: rec_post |= rev (snoc (x::xs) h) == h::rev(x::xs) *)
+    (* simplify: rec_post |= rev ((x::xs) @ [h]) == h::(snoc (rev xs) x) *)
+    (* simplify: rec_post |= rev (x::(xs @ [h])) == h::((rev xs) @ [x]) *)
+    (* simplify: rec_post |= snoc (rev (xs @ [h])) x == h::((rev xs) @ [x]) *)
+    (* rewrite : rec_post |= snoc (h::rev xs) x == h::((rev xs) @ [x]) *)
+    (* simplify : rec_post |= (h::rev xs) @ [x] == h::((rev xs) @ [x]) *)
+    (* simplify : rec_post |= h::(rev xs @ [x]) == h::((rev xs) @ [x]) *)
 
 val rev_involutive: #a:Type -> l:list a -> Lemma (rev (rev l) == l)
 let rec rev_involutive (#a:Type) l =
   match l with
   | [] -> ()
   | hd::tl ->
-      // (1) [rev (rev tl) == tl]
       rev_involutive tl;
-      // (2) [rev (snoc (rev tl) hd) == hd::(rev (rev tl))]
+      // (1) [rev (rev tl) == tl]
       rev_snoc (rev tl) hd
+      // (2) [rev (snoc (rev tl) hd) == hd::(rev (rev tl))]
+
       // These two facts are enough for Z3 to prove the lemma:
       //   rev (rev (hd :: tl)) == hd::tl   {To Prove}
       //   rev (snoc (rev tl) hd) == hd::tl {By def}
@@ -205,9 +211,9 @@ let rec rev_involutive (#a:Type) l =
 (** More verification
 
     Let's define membership on list. Unlike OCaml, F* doesn't provide equality
-    on every type. This is because not all types have decidable equality. So in
-    order to write mem we cannot quantify over arbitrary types, but only over
-    those with decidable equality. *)
+    on every type. This is because not all types have decidable equality (types
+    are much richer than OCaml). So in order to write mem we cannot quantify
+    over arbitrary types, but only over those with decidable equality. *)
 
 (* [#a:eqtype] is syntactic sugar for [#a:Type{hasEq a}] *)
 val mem: #a:eqtype -> a -> list a -> Tot bool
@@ -221,17 +227,13 @@ val append_mem:  #a:eqtype -> l1:list a -> l2:list a -> x:a
 let rec append_mem (#a:eqtype) l1 l2 x =
   match l1 with
   | [] -> ()
-  | hd::tl -> append_mem tl l2 x
-  // mem x (hd::(append tl l2)) <==> hd=x || mem x tl || mem x l2.
-
-(* [rev] is injective *)
-
-val rev_injective : #a:Type -> l1:list a -> l2:list a
-                -> Lemma (requires (rev l1 == rev l2))
-                         (ensures  (l1 == l2))
-let rec rev_injective (#a:Type) l1 l2 =
-  rev_involutive l1; rev_involutive l2
-  //Use the fact that every involutive function is injective
+  | hd::tl -> 
+      append_mem tl l2 x
+      // (1) mem x (append tl l2 x) <==> mem x tl || mem x l2
+      // To show:   mem x (append (hd::tl) l2) <==> mem x (hd::tl) || mem x l2
+      // simplify:  mem x (hd::append tl l2) <==> hd = x || mem x tl || mem x l2
+      // simplify:  hd = x || mem x (append tl l2) <==> hd = x || mem x tl || mem x l2
+      // Proved by (1)
 
 (******************************************************************************)
 
@@ -318,7 +320,7 @@ let rec insert_sorted a l = match l with
        let _ = assert (x < a) in
        let r = insert_sorted a xs in
        let m::_ = r in
-       if mem m xs then admit () else () (* m = a /\ x < a ==> x < m *);
+       if mem m xs then admit () else () (* [case (m = a)] x < a ==> x < m *);
        x::r
 *)
 
@@ -352,6 +354,7 @@ let rec sorted_smaller x xs m = match xs with
     | [] -> ()
     | y::ys -> if y=m then () else sorted_smaller x ys m
 
+
 (*
 val insert_sorted :
   a:int ->
@@ -364,14 +367,15 @@ let rec insert_sorted a l = match l with
        a::l
      else
        let _ = assert (sorted (insert_sorted a xs)) in
+       let _ = assert (sorted (x::xs)) in (* 1 *)
        let _ = assert (x < a) in
        let r = insert_sorted a xs in
        let m::_ = r in
-       if mem m xs then sorted_smaller x xs m else () (* m = a /\ x < a ==> x < m *);
+       if mem m xs (* 2 *) then sorted_smaller x xs m else () (* m = a /\ x < a ==> x < m *);
        x::r
 *)
 
- val insert_sorted :
+val insert_sorted :
   a:int ->
   l:list int{sorted l} ->
   Tot (r:list int{sorted r /\ (forall x. mem x r <==> x==a \/ mem x l)})
@@ -417,7 +421,21 @@ let rec leftmost tr =
   | _ -> leftmost lt
 
 (*
+val swivel : tr:tree -> r:tree{rightmost tr = leftmost r}
+let rec swivel tr =
+  match tr with
+  | Leaf -> Leaf
+  | Node v lt rt -> Node v (swivel rt) (swivel lt)
+*)
 
+
+val root : tr:tree -> Tot (option int)
+let root tr = match tr with
+  | Leaf -> None
+  | Node v _ _ -> Some v
+
+
+(*
 val swivel : tr:tree -> r:tree{rightmost tr = leftmost r}
 let rec swivel tr =
   match tr with
@@ -427,27 +445,10 @@ let rec swivel tr =
       let ih2 = rightmost rt = leftmost (swivel rt) in
       assert (ih1);
       assert (ih2);
+      (* assert (root rt = root (swivel rt)); *)
       assert (ih2 ==>  rightmost tr = leftmost (Node v (swivel rt) (swivel lt)));
       Node v (swivel rt) (swivel lt)
-
-
-
-
-
-
-
-
-
-
-   (* assert (root rt = root (swivel rt));
-
-      does not hold *)
 *)
-
-val root : tr:tree -> Tot (option int)
-let root tr = match tr with
-  | Leaf -> None
-  | Node v _ _ -> Some v
 
 val swivel2 :
   tr:tree ->
