@@ -178,7 +178,9 @@ let rec rev_snoc (#a:Type) l h =
     (* snoc [] h == [h] *)
     (* [] @ [h] == [h] *)
     (* [h] == [h] *)
-  | x::xs -> rev_snoc xs h
+  | x::xs -> 
+        rev_snoc xs h;
+        assert (rev (xs @ [h]) == h::rev xs)
     (* post-condition of recursive call (rec_post): rev (snoc xs h) == h::rev xs *)
     (*                                              rev (xs @ [h])  == h::rev xs *)
 
@@ -420,13 +422,12 @@ let rec leftmost tr =
   | Leaf -> Some v
   | _ -> leftmost lt
 
-(*
 val swivel : tr:tree -> r:tree{rightmost tr = leftmost r}
 let rec swivel tr =
   match tr with
   | Leaf -> Leaf
-  | Node v lt rt -> Node v (swivel rt) (swivel lt)
-*)
+  | Node v lt rt -> 
+   Node v (swivel rt) (swivel lt)
 
 
 val root : tr:tree -> Tot (option int)
