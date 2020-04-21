@@ -22,6 +22,7 @@ moodle](https://courses.iitm.ac.in/course/view.php?id=5339).
 | 7 | 05/03/2020 | 12/03/2020 | Operational Semantics: Non-determinism | 
 | 8 | 16/03/2020 | 07/04/2020 | Type safety of subtyping |
 | 9 | 07/04/2020 | 15/04/2020 | Hoare Logic with I/O |
+| 10 | 14/04/2020 | 24/04/2020 | Verifying Functional Programs with F\* |
 
 <br/>
 
