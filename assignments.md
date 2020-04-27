@@ -23,6 +23,7 @@ moodle](https://courses.iitm.ac.in/course/view.php?id=5339).
 | 8 | 16/03/2020 | 07/04/2020 | Type safety of subtyping |
 | 9 | 07/04/2020 | 15/04/2020 | Hoare Logic with I/O |
 | 10 | 14/04/2020 | 24/04/2020 | Verifying Functional Programs with F\* |
+| 11 | 27/04/2020 | 04/05/2020 | Effects in F\* |
 
 <br/>
 
